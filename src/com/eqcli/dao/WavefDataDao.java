@@ -98,8 +98,8 @@ public class WavefDataDao extends BaseDao<WavefData> {
 				WavefData data = new WavefData();
 				data.setId(result.getInt("id"));
 				data.setQuality(result.getString("qid"));
-				data.setLocId("localid");   //2Bytes
-				data.setChannId("channid");     //2Bytes
+				data.setLocId(result.getString("localid"));   //2Bytes
+				data.setChannId(result.getString("channid"));     //2Bytes
 				data.setStartTime(result.getLong("starttime"));		 //
 				data.setSamNum(result.getShort("samcount"));
 				data.setSamFactor(result.getShort("samfactor"));

@@ -92,7 +92,7 @@ public class ClientApp extends Application {
 			Scene scene = new Scene(root,400,400);
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			primaryStage.setScene(scene);
-			primaryStage.setTitle(""+(int)(100*Math.random()));
+			primaryStage.setTitle(Constant.stationId);
 			primaryStage.show();
 		} catch(Exception e) {
 			e.printStackTrace();

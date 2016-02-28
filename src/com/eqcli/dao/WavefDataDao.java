@@ -144,7 +144,7 @@ public class WavefDataDao extends BaseDao<WavefData> {
 			stat = JDBCHelper.getDBConnection().createStatement();
 			ResultSet result = stat.executeQuery(sql);
 			if(result.next()){
-				id = result.getInt(1)+1;
+				id = result.getInt(1);
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block

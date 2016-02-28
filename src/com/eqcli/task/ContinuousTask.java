@@ -19,6 +19,7 @@ public class ContinuousTask extends TransTask {
 	private int queueCapacity = 20;   //容量
 	private WavefDataDao dao;
 	private int speed = 2000;     //发送速率 单位ms
+	private int lastSendedId = 0;
 
 	public ContinuousTask(ChannelHandlerContext _ctx, int packetid) {
 
@@ -48,12 +49,14 @@ public class ContinuousTask extends TransTask {
 				if (sendQueue.size() < 5) {
 					int startid = 0;
 					if (sendQueue.isEmpty()) {
-						startid = dao.getLastId();
-						startid = startid < 0 ? 0 : startid; 
+//						startid = dao.getLastId();
+//						startid = startid < 0 ? 0 : startid; 
+						startid = lastSendedId == 0 ? 0 : lastSendedId+1;
 					} else {
 						startid = sendQueue.getLast().getId() + 1;
+						
 					}
-					Reloading(startid, queueCapacity - 5);
+					Reloading(startid, queueCapacity - 2);
 				}
 				if (!sendQueue.isEmpty()) {
 					// 将队列中的第一个数据对象发送出去
@@ -74,6 +77,8 @@ public class ContinuousTask extends TransTask {
 
 	/** 发送到服务端 */
 	private void send() {
-		context.writeAndFlush(DataBuilder.buildWavefDataMsg(MsgConstant.TYPE_WC, sendQueue.removeFirst()));
+		WavefData data = sendQueue.removeFirst();
+		lastSendedId = data.getId();
+		context.writeAndFlush(DataBuilder.buildWavefDataMsg(MsgConstant.TYPE_WC, data));
 	}
 }

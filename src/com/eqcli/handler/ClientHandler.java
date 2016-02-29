@@ -2,6 +2,8 @@ package com.eqcli.handler;
 
 import java.util.concurrent.TimeUnit;
 
+import org.apache.log4j.Logger;
+
 import com.eqcli.application.ClientApp;
 import com.eqcli.task.ContinuousTask;
 import com.eqcli.task.TrgNoWaveTask;
@@ -15,19 +17,18 @@ import com.eqsys.msg.MsgConstant;
 import com.eqsys.msg.RegRspMsg;
 import com.eqsys.msg.TransModeMsg;
 
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.ScheduledFuture;
 
 public class ClientHandler extends ChannelHandlerAdapter {
+	
+	private Logger log = Logger.getLogger(ClientHandler.class);
 
 	private ClientApp client;
 	private boolean isRegRsped; // 是否收到注册回复,无论是否成功,收到后都为true
 								// deprecated:注册是否成功(认证失败或获取认证超时都会到时失败)标识
-	private boolean ContTaskFlay = true; // 连续传输模式标志
 	private int lastPacketId;
 
 	private ChannelHandlerContext context;
@@ -38,41 +39,45 @@ public class ClientHandler extends ChannelHandlerAdapter {
 
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
-		System.out.println("channel active:" + ctx.channel().toString());
-		ctx.writeAndFlush(DataBuilder.buildRegMsg()); // 发送注册信息包
+		
+//		System.out.println("channel active:" + ctx.channel().toString());
+		send(ctx, DataBuilder.buildRegMsg());  // 发送注册信息包
 		isRegRsped = false;
 
-		// 发送完注册信息后也要设定超时
+		// 发送完注册信息后也要设定超时,注册超时
 		EventExecutor loop = ctx.executor();
-		ScheduledFuture fu = loop.schedule(new ReconnectTask(), 10000, TimeUnit.MILLISECONDS);
+		ScheduledFuture fu = loop.schedule(new ReconnectTask(), 10, TimeUnit.SECONDS);
 	}
 
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 
-		System.out.println("channel inactive:" + ctx.channel().toString());
-		super.channelInactive(ctx);
+		//企图重连,但是无法感知与服务端断开连接
+//		log.info("与服务器断开连接");
+//		isRegRsped = false;
+//		client.reconnect();
 	}
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-//		System.out.println("channelRead:" + ctx.channel().toString());
+		
 		BaseMsg revMsg = (BaseMsg) msg;
 		String msgType = revMsg.getMsgType();
+		log.info("收到数据包类型:"+msgType);
 		if (MsgConstant.TYPE_RR.equals(msgType)) { // 注册回应消息
 
 			isRegRsped = true;
 			RegRspMsg rrMsg = (RegRspMsg) msg;
 			if (rrMsg.getAuthenState() == MsgConstant.REG_SUCCESS) { // 注册成功
-				System.out.println("注册成功");
+				log.info("向服务器注册成功");
 				this.context = ctx;
 				lastPacketId = rrMsg.getLastPacketNo();
 
 			} else {
 
 				// 注册失败 提示
-				System.out.println("注册失败");
-
+				//System.out.println("注册失败");
+				log.error("向服务器注册失败");
 				// 注册失败之后....
 				// 参数错误,修改连接参数
 				// 关闭定时器
@@ -90,7 +95,6 @@ public class ClientHandler extends ChannelHandlerAdapter {
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 
-		System.out.println("与服务器连接中断");
 		ctx.close();
 	}
 
@@ -110,9 +114,6 @@ public class ClientHandler extends ChannelHandlerAdapter {
 			System.out.println("传输模式控制包");
 			short mode = 0;
 			switch (submsg.getSubTransMode()) {
-//			case 0:
-//				mode = ClientApp.transMode;
-//				break;
 			case 1:
 				mode = Constant.MODE_CONTINUOUS;
 				break;
@@ -144,14 +145,15 @@ public class ClientHandler extends ChannelHandlerAdapter {
 			break;
 		}
 
-		CtrlCmdRspMsg ccRMsg = DataBuilder.buildCtrlRspMsg(ccMsg.getPacketId(), state, "okok" + ccMsg.getPacketId(),
+		CtrlCmdRspMsg ccRMsg = DataBuilder.buildCtrlRspMsg(ccMsg.getPacketId(), state, "okok",
 				ccMsg.getSubCommand());
 
-		ctx.writeAndFlush(ccRMsg);
+//		ctx.writeAndFlush(ccRMsg);
+		send(ctx, ccRMsg);
 	}
 
 	/**
-	 * 连接重连
+	 * 重连任务
 	 *
 	 */
 	private class ReconnectTask implements Runnable {
@@ -161,22 +163,19 @@ public class ClientHandler extends ChannelHandlerAdapter {
 
 			// 如果连接失败则重连
 			if (!isRegRsped) {
-				System.out.println("定时任务  重连");
+				log.info("向服务器注册超时,启动重连");
 				client.reconnect();
 			} else {
-				System.out.println("定时任务 无需重连");
+//				System.out.println("定时任务 无需重连");
 			}
 		}
 	}
 
-	public ChannelHandlerContext getContext() {
-		return context;
-	}
-
-	public void setContext(ChannelHandlerContext context) {
-		this.context = context;
-	}
-
+	/**
+	 * 切换传输模式
+	 * @param mode 要切换的传输模式
+	 * @param ctx
+	 */
 	private void switchTransMode(short mode, ChannelHandlerContext ctx) {
 		ClientApp.transMode = mode;
 		EventExecutor loop = ctx.executor();
@@ -192,9 +191,22 @@ public class ClientHandler extends ChannelHandlerAdapter {
 		case Constant.MODE_TRG_WAVE:
 			loop.schedule(new TrgWithWaveTask(ctx), 100, TimeUnit.MILLISECONDS);
 			break;
-		default:
+		default:     //空闲模式
 			break;
 		}
 
+	}
+	
+	
+	/** 发送数据出口
+	 * 
+	 * @param ctx   ChannelHandlerContext对象
+	 * @param msg   数据包对象
+	 */
+	private void send(ChannelHandlerContext ctx, Object msg){
+		
+		if(ctx != null && msg != null){
+			ctx.writeAndFlush(msg);
+		}
 	}
 }

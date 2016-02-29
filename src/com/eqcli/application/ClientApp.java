@@ -5,6 +5,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.log4j.Logger;
+
 import com.eqcli.dao.TrgDataDao;
 import com.eqcli.dao.WavefDataDao;
 import com.eqcli.handler.ClientHandler;
@@ -12,6 +14,7 @@ import com.eqcli.task.DataCreatorTask;
 import com.eqcli.util.Constant;
 import com.eqcli.util.DataBuilder;
 import com.eqcli.util.JDBCHelper;
+import com.eqcli.util.LogUtil;
 import com.eqsys.msg.data.TrgData;
 
 import io.netty.bootstrap.Bootstrap;
@@ -33,6 +36,8 @@ import javafx.stage.Stage;
 
 
 public class ClientApp extends Application {
+	
+	private Logger log = Logger.getLogger(ClientApp.class);
 	
 	private boolean isConnected = false;  //tcp链路连接标志
 	private static final String DEFALUT_HOST = "localhost";
@@ -61,27 +66,28 @@ public class ClientApp extends Application {
 	@Override
 	public void init() throws Exception {
 		
-		//初始化netty通信框架参数
+		LogUtil.initLog();
+		initNetty();
+		JDBCHelper.initDB();
+		//testJDBC();
+		//连接服务器
+		connectToHost();
+		//模拟数据发生器
+		executor.execute(new DataCreatorTask());
+		
+	}
+	
+	/** 初始化netty通信框架参数 */
+	private void initNetty(){
+		
 		group = new NioEventLoopGroup();
 		bootstrap = new Bootstrap();
 		bootstrap.group(group)
 		.channel(NioSocketChannel.class)
 		.option(ChannelOption.TCP_NODELAY, true)
-		//.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000) //连接超时
+		.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000) //连接超时
 		.handler(new ChannelHandlers());
-		
-		//初始化数据库连接池
-		JDBCHelper.initDB();
-		
-		//testJDBC();
-		
-		//连接服务器
-		connectToHost();
-		
-		executor.execute(new DataCreatorTask());
-		
 	}
-	
 	/**
 	 * 启动界面
 	 */
@@ -106,10 +112,10 @@ public class ClientApp extends Application {
 	@Override
 	public void stop() throws Exception {
 
-		System.out.println("client app stop");
 		JDBCHelper.closeDB();
 		group.shutdownGracefully();
 		executor.shutdown();
+		log.info("退出软件");
 	}
 	
 	
@@ -162,21 +168,20 @@ public class ClientApp extends Application {
 						
 						//连接超时,host可解析，port开放但是不接收tcp连接时才会触发这个超时
 						//重连
-						System.out.println("连接超时");
+						//System.out.println("连接超时");
+						log.info("连接超时");
 						
 					}else{
 						//其他异常
 						//打印日志,显示必要错误等处理
-						System.out.println("连接失败");
+//						System.out.println("连接失败");
 						//e.printStackTrace();
-						//break;
+						log.info("连接失败:"+e.getMessage());
 						
 					}
 					try {
-						TimeUnit.SECONDS.sleep(5);
-//						Thread.sleep(1000);
+						TimeUnit.SECONDS.sleep(5);   //连接失败后重连间隔 5s
 					} catch (InterruptedException e1) {
-						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
 					isConnected = false;

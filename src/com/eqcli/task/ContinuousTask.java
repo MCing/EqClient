@@ -48,22 +48,17 @@ public class ContinuousTask extends TransTask {
 		}
 		while (ClientApp.transMode == Constant.MODE_CONTINUOUS) {
 			try {
-				log.info("连续传输模式1:"+tmp);
-				
 				// 发送队列大小小于队列阈值时(5),从数据库中获取
 				if (sendQueue.size() < 5) {
 					int startid = 0;
 					if (sendQueue.isEmpty()) {
-						//bug
-//						startid = dao.getLastId();
-//						startid = startid < 0 ? 0 : startid; 
+						
 						startid = lastSendedId == 0 ? 0 : lastSendedId + 1;
 					} else {
 						startid = sendQueue.getLast().getId() + 1;
 						
 					}
 					Reloading(startid, queueCapacity - 2);
-					log.info("连续传输模式2:"+tmp);
 				}
 				if (!sendQueue.isEmpty()) {
 					// 将队列中的第一个数据对象发送出去
@@ -71,7 +66,6 @@ public class ContinuousTask extends TransTask {
 				}else{
 					log.error("发送队列为空");
 				}
-				log.info("连续传输模式3:"+tmp++);
 				Thread.sleep(speed);    //发送间隔
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -91,7 +85,7 @@ public class ContinuousTask extends TransTask {
 	private void send() {
 		WavefData data = sendQueue.removeFirst();
 		lastSendedId = data.getId();
-		//log.info("发送波形数据:"+lastSendedId);
+		log.info("发送波形数据:"+lastSendedId);
 		context.writeAndFlush(DataBuilder.buildWavefDataMsg(MsgConstant.TYPE_WC, data));
 	}
 }

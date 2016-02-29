@@ -5,7 +5,7 @@ import java.util.Random;
 public class Constant {
 	
 	//站台Id
-	public static String stationId = "00"+new Random().nextInt(1000);
+	public static String stationId = String.format("%05d", new Random().nextInt(99999));
 	
 	//服务器 id
 	public static String serverId = "TT";

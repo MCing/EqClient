@@ -1,5 +1,6 @@
 package com.eqcli.dao;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -31,10 +32,10 @@ public class TrgDataDao extends BaseDao<TrgData> {
 	public boolean save(TrgData t) {
 		
 		boolean ret = false;
-		
 		if(t == null){
 			return false;
 		}
+		Connection conn = null;
 		try {
 			conn = JDBCHelper.getDBConnection();
 			preStat = conn.prepareStatement(insertSql);
@@ -89,6 +90,7 @@ public class TrgDataDao extends BaseDao<TrgData> {
 	@Override
 	public boolean delete(TrgData t) {
 		
+		Connection conn = null;
 		try {
 			conn = JDBCHelper.getDBConnection();
 			preStat = conn.prepareStatement(deleteSql);

@@ -2,6 +2,7 @@ package com.eqcli.dao;
 
 import java.io.ByteArrayInputStream;
 import java.sql.Blob;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -22,12 +23,13 @@ public class WavefDataDao extends BaseDao<WavefData> {
 	@Override
 	public boolean save(WavefData t) {
 
-		boolean ret = false;
-		PreparedStatement preStat = null;
 		if (t == null) {
 			return false;
 		}
-		try {
+		boolean ret = false;
+		PreparedStatement preStat = null;
+		Connection conn = null;
+		try{
 			conn = JDBCHelper.getDBConnection();
 			preStat = conn.prepareStatement(mInsertSql);
 			preStat.setInt(1, t.getId());
@@ -54,7 +56,6 @@ public class WavefDataDao extends BaseDao<WavefData> {
 			preStat.setByte(22, t.getDim());
 			preStat.setInt(23, t.getSensFactor());
 			preStat.setBlob(24, new ByteArrayInputStream(t.getDataBlock()));
-//			System.out.println(preStat.toString());
 			int insertRet = preStat.executeUpdate();
 			ret = true;
 		} catch (SQLException e) {
@@ -89,8 +90,11 @@ public class WavefDataDao extends BaseDao<WavefData> {
 	public List<WavefData> get(int start, int count) {
 		String sql = "select * from " + mTableName + " limit ?,?;";
 		List<WavefData> list = new ArrayList<WavefData>();
+		PreparedStatement preStat = null;
+		Connection conn = null;
 		try{
-			PreparedStatement preStat = JDBCHelper.getDBConnection().prepareStatement(sql);
+			conn = JDBCHelper.getDBConnection();
+			preStat = conn.prepareStatement(sql);
 			preStat.setInt(1, start);
 			preStat.setInt(2, count);
 			ResultSet result = preStat.executeQuery();
@@ -128,6 +132,17 @@ public class WavefDataDao extends BaseDao<WavefData> {
 			}
 		}catch(SQLException e){
 			e.printStackTrace();
+		}finally {
+			try {
+				if (preStat != null) {
+					preStat.close();
+				}
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			// 释放连接
+			JDBCHelper.closeDBConnection(conn);
 		}
 		return list;
 	}
@@ -140,8 +155,10 @@ public class WavefDataDao extends BaseDao<WavefData> {
 		String sql = "select max(id) from wavefdata_t";
 		Statement stat = null;
 		int id = 0;
-		try {
-			stat = JDBCHelper.getDBConnection().createStatement();
+		Connection conn = null;
+		try{
+			conn = JDBCHelper.getDBConnection();
+			stat = conn.createStatement();
 			ResultSet result = stat.executeQuery(sql);
 			if(result.next()){
 				id = result.getInt(1);

@@ -15,6 +15,7 @@ import com.eqcli.util.Constant;
 import com.eqcli.util.DataBuilder;
 import com.eqcli.util.JDBCHelper;
 import com.eqcli.util.LogUtil;
+import com.eqcli.util.SysConfig;
 import com.eqsys.msg.data.TrgData;
 
 import io.netty.bootstrap.Bootstrap;
@@ -40,8 +41,6 @@ public class ClientApp extends Application {
 	private Logger log = Logger.getLogger(ClientApp.class);
 	
 	private boolean isConnected = false;  //tcp链路连接标志
-	private static final String DEFALUT_HOST = "localhost";
-	private static final int DEFAULT_PORT = 8080;
 	
 	//全局传输模式
 	public static volatile short transMode = Constant.MODE_CONTINUOUS;
@@ -67,6 +66,7 @@ public class ClientApp extends Application {
 	public void init() throws Exception {
 		
 		LogUtil.initLog();
+		SysConfig.preConfig();
 		initNetty();
 		JDBCHelper.initDB();
 		//testJDBC();
@@ -158,7 +158,7 @@ public class ClientApp extends Application {
 			ChannelFuture f = null;
 			while(!isConnected){
 				try {
-					f = bootstrap.connect(DEFALUT_HOST,DEFAULT_PORT).sync();
+					f = bootstrap.connect(SysConfig.getServerIp(),SysConfig.getServerPort()).sync();
 					if(f.isSuccess()){
 						isConnected = true;
 					}

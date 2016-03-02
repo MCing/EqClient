@@ -13,7 +13,7 @@ public class DataCreatorTask implements Runnable {
 
 	private WavefDataDao dao;
 	private int packetid;
-	private int speed = 200;   //数据产生速率(单位ms) 1000ms
+	private int speed = 200;   //数据产生速率(单位ms)
 
 	public DataCreatorTask() {
 		dao = new WavefDataDao();

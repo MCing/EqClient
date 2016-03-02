@@ -4,53 +4,40 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.apache.log4j.Logger;
+
 import com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource;
 
 public class JDBCHelper {
+	
+	private static Logger log = Logger.getLogger(JDBCHelper.class);
 
-	private static final String USER = "root";
-	private static final String PASSWORD = "ldyy";
-	private static final String DATABASE = "clientdb";
-	// private static final String DATABASE = "clientdb";
-	private static final int PORT = 3306;
-	private static final String SERVERNAME = "127.0.0.1";
-
-	// private static final String DRIVER = "com.mysql.jdbc.Driver";
-	// private static final String URL = "jdbc:mysql://localhost";
+	// 数据库连接池连接容量
+	private static final int connectionPoolCapacity = 50;
 
 	private static MiniConnectionPoolManager poolMgr;
 
-	/**
-	 * deprerate 加载jdbc驱动,必须在使用jdbc前加载
-	 */
 	public static void initDB() {
-		// try{
-		// Class.forName(DRIVER);
-		// }catch(ClassNotFoundException e){
-		// System.out.println("驱动加载失败");
-		// }
+		
 		// 使用连接池,数据源
 		MysqlConnectionPoolDataSource ds = new MysqlConnectionPoolDataSource();
 
-		ds.setServerName(SERVERNAME);
-		ds.setPort(PORT);
-		ds.setDatabaseName(DATABASE);
-		ds.setUser(USER);
-		ds.setPassword(PASSWORD);
+		ds.setServerName(SysConfig.getJdbcServerName());
+		ds.setPort(SysConfig.getJdbcPort());
+		ds.setDatabaseName(SysConfig.getJdbcDb());
+		ds.setUser(SysConfig.getJdbcUser());
+		ds.setPassword(SysConfig.getJdbcPasswd());
 
-		poolMgr = new MiniConnectionPoolManager(ds, 20);
+		poolMgr = new MiniConnectionPoolManager(ds, connectionPoolCapacity);
 
 		testPrepareDb();
-		// test 执行sql脚本创建数据库表
-		// ScriptRunner runner;
-		// try {
-		// runner = new ScriptRunner(poolMgr.getConnection());
-		// runner.setAutoCommit(true);
-		// runner.runScript(Resources.getResourceAsReader("wavefdata_t.sql"));
-		// } catch (Exception e) {
-		// e.printStackTrace();
-		// }
-
+		
+		try{
+			Connection testConn = poolMgr.getConnection();
+			testConn.close();
+		}catch(Exception e){
+			log.error("数据库配置错误:"+e.getMessage());
+		}
 	}
 
 	/**
@@ -64,7 +51,7 @@ public class JDBCHelper {
 		try {
 			conn = poolMgr.getConnection();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("数据库异常:"+e.getMessage());
 		}
 		return conn;
 	}
@@ -82,7 +69,7 @@ public class JDBCHelper {
 				conn = null;
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("数据库异常:"+e.getMessage());
 		}
 	}
 
@@ -111,17 +98,17 @@ public class JDBCHelper {
 
 			stat.close();
 			conn.close();
-			
+
 			// 重新配置数据库配置
 			closeDB();
 			MysqlConnectionPoolDataSource ds = new MysqlConnectionPoolDataSource();
-			ds.setServerName(SERVERNAME);
-			ds.setPort(PORT);
+			ds.setServerName(SysConfig.getJdbcServerName());
+			ds.setPort(SysConfig.getJdbcPort());
 			ds.setDatabaseName(tmpDatabase);
-			ds.setUser(USER);
-			ds.setPassword(PASSWORD);
-			poolMgr = new MiniConnectionPoolManager(ds, 20);
-			
+			ds.setUser(SysConfig.getJdbcUser());
+			ds.setPassword(SysConfig.getJdbcPasswd());
+			poolMgr = new MiniConnectionPoolManager(ds, connectionPoolCapacity);
+
 			// 创建表格
 			conn = getDBConnection();
 			stat = conn.createStatement();

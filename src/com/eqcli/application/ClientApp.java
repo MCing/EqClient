@@ -1,27 +1,11 @@
 package com.eqcli.application;
 	
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.log4j.Logger;
-
-import com.eqcli.dao.TrgDataDao;
-import com.eqcli.dao.WavefDataDao;
-import com.eqcli.handler.ClientHandler;
-import com.eqcli.task.DataCreatorTask;
-import com.eqcli.util.Constant;
-import com.eqcli.util.DataBuilder;
-import com.eqcli.util.JDBCHelper;
-import com.eqcli.util.LogUtil;
-import com.eqcli.util.SysConfig;
-import com.eqsys.msg.data.TrgData;
-
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
+import io.netty.channel.ChannelPipeline;
 import io.netty.channel.ConnectTimeoutException;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -30,10 +14,26 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+
+import org.apache.log4j.Logger;
+
+import com.eqcli.dao.WavefDataDao;
+import com.eqcli.handler.ClientHandler;
+import com.eqcli.task.DataCreatorTask;
+import com.eqcli.util.Constant;
+import com.eqcli.util.DataBuilder;
+import com.eqcli.util.JDBCHelper;
+import com.eqcli.util.LogUtil;
+import com.eqcli.util.SysConfig;
 
 
 public class ClientApp extends Application {
@@ -130,9 +130,12 @@ public class ClientApp extends Application {
 		@Override
 		protected void initChannel(SocketChannel ch) throws Exception {
 
+			ChannelPipeline pipeline = ch.pipeline();
 			ch.pipeline().addLast(new ObjectDecoder(1024,ClassResolvers.cacheDisabled(this.getClass().getClassLoader())));
 			ch.pipeline().addLast(new ObjectEncoder());
-			ch.pipeline().addLast(new ClientHandler(ClientApp.this));
+//			pipeline.addLast(MarshallingFactory.buildMarshallingDecoder());
+//			pipeline.addLast(MarshallingFactory.buildMarshallingEncoder());
+			pipeline.addLast(new ClientHandler(ClientApp.this));
 		}
 		
 	}

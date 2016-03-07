@@ -22,7 +22,7 @@ public class ContinuousTask extends TransTask {
 	private LinkedList<WavefData> sendQueue;
 	private int queueCapacity = 20;   //容量
 	private WavefDataDao dao;
-	private int speed = 300;     //发送速率 单位ms
+	private int speed = 1000;     //发送速率 单位ms
 	private int lastSendedId = 0;
 
 	private int tmp;

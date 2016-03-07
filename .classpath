@@ -8,5 +8,7 @@
 	<classpathentry kind="lib" path="lib/log4j-1.2.17.jar"/>
 	<classpathentry kind="lib" path="F:/Program Files (x86)/Java/jdk1.8.0_65/jre/lib/ext/jfxrt.jar"/>
 	<classpathentry kind="lib" path="lib/jfxrt.jar"/>
+	<classpathentry kind="lib" path="lib/jboss-marshalling-1.3.0.CR9.jar"/>
+	<classpathentry kind="lib" path="lib/jboss-marshalling-serial-1.3.0.CR9.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

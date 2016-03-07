@@ -1,5 +1,12 @@
 package com.eqcli.handler;
 
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerAdapter;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.util.concurrent.EventExecutor;
+import io.netty.util.concurrent.ScheduledFuture;
+
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
@@ -13,14 +20,10 @@ import com.eqcli.util.DataBuilder;
 import com.eqsys.msg.BaseCmdMsg;
 import com.eqsys.msg.BaseMsg;
 import com.eqsys.msg.CtrlCmdRspMsg;
+import com.eqsys.msg.MarshallingTestMsg;
 import com.eqsys.msg.MsgConstant;
 import com.eqsys.msg.RegRspMsg;
 import com.eqsys.msg.TransModeMsg;
-
-import io.netty.channel.ChannelHandlerAdapter;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.util.concurrent.EventExecutor;
-import io.netty.util.concurrent.ScheduledFuture;
 
 public class ClientHandler extends ChannelHandlerAdapter {
 	
@@ -40,7 +43,6 @@ public class ClientHandler extends ChannelHandlerAdapter {
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		
-//		System.out.println("channel active:" + ctx.channel().toString());
 		send(ctx, DataBuilder.buildRegMsg());  // 发送注册信息包
 		isRegRsped = false;
 
@@ -206,7 +208,25 @@ public class ClientHandler extends ChannelHandlerAdapter {
 	private void send(ChannelHandlerContext ctx, Object msg){
 		
 		if(ctx != null && msg != null){
-			ctx.writeAndFlush(msg);
+			ChannelFuture f = ctx.writeAndFlush(msg);
+			f.addListener(new ChannelFutureListener() {
+				
+				@Override
+				public void operationComplete(ChannelFuture future) throws Exception {
+					// TODO Auto-generated method stub
+					System.err.println(msg+":发送完毕");
+				}
+			});
 		}
+	}
+	
+	
+	//test 
+	private MarshallingTestMsg buildTestMsg(){
+		MarshallingTestMsg msg = new MarshallingTestMsg();
+		msg.setA(1);
+		msg.setB(2);
+		msg.setC("marshalling test msg");
+		return msg;
 	}
 }

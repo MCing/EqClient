@@ -14,6 +14,9 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
+import io.netty.handler.timeout.IdleStateHandler;
+import io.netty.handler.timeout.ReadTimeoutHandler;
+import io.netty.handler.timeout.WriteTimeoutHandler;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -27,7 +30,8 @@ import javafx.stage.Stage;
 import org.apache.log4j.Logger;
 
 import com.eqcli.dao.WavefDataDao;
-import com.eqcli.handler.ClientHandler;
+import com.eqcli.handler.CtrlRespHandler;
+import com.eqcli.handler.RegReqHandler;
 import com.eqcli.task.DataCreatorTask;
 import com.eqcli.util.Constant;
 import com.eqcli.util.DataBuilder;
@@ -135,7 +139,8 @@ public class ClientApp extends Application {
 			ch.pipeline().addLast(new ObjectEncoder());
 //			pipeline.addLast(MarshallingFactory.buildMarshallingDecoder());
 //			pipeline.addLast(MarshallingFactory.buildMarshallingEncoder());
-			pipeline.addLast(new ClientHandler(ClientApp.this));
+			pipeline.addLast(new RegReqHandler(ClientApp.this));
+			pipeline.addLast(new CtrlRespHandler());
 		}
 		
 	}
@@ -151,7 +156,7 @@ public class ClientApp extends Application {
 	
 	/**
 	 * 连接任务线程
-	 * 处理连接超时
+	 * 处理连接超时重连
 	 *
 	 */
 	private class ConnectTask implements Runnable{
@@ -159,7 +164,7 @@ public class ClientApp extends Application {
 		@Override
 		public void run() {
 			ChannelFuture f = null;
-			while(!isConnected){
+			while(!isConnected && !executor.isShutdown()){
 				try {
 					f = bootstrap.connect(SysConfig.getServerIp(),SysConfig.getServerPort()).sync();
 					if(f.isSuccess()){
@@ -177,8 +182,6 @@ public class ClientApp extends Application {
 					}else{
 						//其他异常
 						//打印日志,显示必要错误等处理
-//						System.out.println("连接失败");
-						//e.printStackTrace();
 						log.info("连接失败:"+e.getMessage());
 						
 					}

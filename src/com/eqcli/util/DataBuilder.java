@@ -2,6 +2,7 @@ package com.eqcli.util;
 
 import java.util.Random;
 
+import com.eqcli.application.ClientApp;
 import com.eqsys.msg.CtrlCmdRspMsg;
 import com.eqsys.msg.MsgConstant;
 import com.eqsys.msg.RegMsg;
@@ -29,7 +30,7 @@ public class DataBuilder {
 		regMsg.setSensitivity(1000);
 		regMsg.setStId(Constant.stationId);
 		regMsg.setSrvId(Constant.serverId);
-		regMsg.setTransMode((short) 1);
+		regMsg.setTransMode(ClientApp.transMode);
 		regMsg.setTriggerThreshold((short) random.nextInt(200));
 		regMsg.setCtrlAuthority((short) 0);
 		return regMsg;

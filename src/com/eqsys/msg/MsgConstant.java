@@ -12,6 +12,8 @@ public class MsgConstant {
 	public static final String TYPE_TI = "TI";
 	public static final String TYPE_RR = "RR";
 	public static final String TYPE_CC = "CC";
+	public static final String TYPE_HB = "HB";
+	public static final String TYPE_HBR = "HR";
 	
 	/* 注册状态 */
 	public static final short REG_SUCCESS = 0;

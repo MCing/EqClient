@@ -19,7 +19,7 @@ public class ContinuousTask extends TransTask {
 	private Logger log = Logger.getLogger(ContinuousTask.class);
 
 	/** 发送队列 */
-	private LinkedList<WavefData> sendQueue;
+	private static LinkedList<WavefData> sendQueue;
 	private int queueCapacity = 20;   //容量
 	private WavefDataDao dao;
 	private int speed = 1000;     //发送速率 单位ms
@@ -45,7 +45,6 @@ public class ContinuousTask extends TransTask {
 		if (context == null) {
 			return;
 		}
-		while (ClientApp.transMode == Constant.MODE_CONTINUOUS) {
 			try {
 				// 发送队列大小小于队列阈值时(5),从数据库中获取
 				if (sendQueue.size() < 5) {
@@ -65,15 +64,10 @@ public class ContinuousTask extends TransTask {
 				}else{
 					log.error("发送队列为空");
 				}
-				Thread.sleep(speed);    //发送间隔
-			} catch (InterruptedException e) {
-				e.printStackTrace();
 			} catch(Exception e){
 				log.error("连续传输模式错误:"+e.getMessage());
 			}
 		}
-		log.info("结束连续传输模式");
-	}
 
 	/** 向发送队列中加载数据 */
 	private void Reloading(int start, int count) {
@@ -82,6 +76,7 @@ public class ContinuousTask extends TransTask {
 
 	/** 发送到服务端 */
 	private void send() {
+		
 		WavefData data = sendQueue.removeFirst();
 		lastSendedId = data.getId();
 		log.info("发送波形数据:"+lastSendedId);

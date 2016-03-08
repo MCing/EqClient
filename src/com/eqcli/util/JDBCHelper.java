@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
 import com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource;
 
 public class JDBCHelper {
-	
+
 	private static Logger log = Logger.getLogger(JDBCHelper.class);
 
 	// 数据库连接池连接容量
@@ -18,7 +18,7 @@ public class JDBCHelper {
 	private static MiniConnectionPoolManager poolMgr;
 
 	public static void initDB() {
-		
+
 		// 使用连接池,数据源
 		MysqlConnectionPoolDataSource ds = new MysqlConnectionPoolDataSource();
 
@@ -31,12 +31,12 @@ public class JDBCHelper {
 		poolMgr = new MiniConnectionPoolManager(ds, connectionPoolCapacity);
 
 		testPrepareDb();
-		
-		try{
+
+		try {
 			Connection testConn = poolMgr.getConnection();
 			testConn.close();
-		}catch(Exception e){
-			log.error("数据库配置错误:"+e.getMessage());
+		} catch (Exception e) {
+			log.error("数据库配置错误:" + e.getMessage());
 		}
 	}
 
@@ -51,7 +51,7 @@ public class JDBCHelper {
 		try {
 			conn = poolMgr.getConnection();
 		} catch (SQLException e) {
-			log.error("数据库异常:"+e.getMessage());
+			log.error("数据库异常:" + e.getMessage());
 		}
 		return conn;
 	}
@@ -69,7 +69,7 @@ public class JDBCHelper {
 				conn = null;
 			}
 		} catch (SQLException e) {
-			log.error("数据库异常:"+e.getMessage());
+			log.error("数据库异常:" + e.getMessage());
 		}
 	}
 
@@ -78,10 +78,12 @@ public class JDBCHelper {
 	 */
 	public static void closeDB() {
 		try {
-			poolMgr.dispose();
+			if (poolMgr != null) {
+				poolMgr.dispose();
+			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("数据库连接池关闭异常:"+e.getMessage());
 		}
 	}
 
@@ -122,18 +124,31 @@ public class JDBCHelper {
 		}
 	}
 
-	private static String createTableSql = "CREATE TABLE `wavefdata_t` (" + "  `id` int(11) NOT NULL,"
-			+ "  `qid` char(1) NOT NULL DEFAULT 'D'," + "  `hreserve` tinyint(1) unsigned DEFAULT NULL,"
-			+ "`localid` char(2) NOT NULL," + "`channid` char(2) NOT NULL," + "`starttime` bigint(20) NOT NULL,"
-			+ "`samcount` smallint(6) NOT NULL," + "`samfactor` smallint(6) NOT NULL,"
-			+ "`sammul` smallint(6) NOT NULL," + "`actid` tinyint(4) unsigned NOT NULL,"
-			+ "`iocflag` tinyint(4) unsigned NOT NULL," + "`dataqflag` tinyint(4) unsigned NOT NULL,"
-			+ "`blockcount` tinyint(4) unsigned NOT NULL," + "`timecorr` int(11) NOT NULL,"
-			+ "`dataoffs` smallint(6) NOT NULL," + " `subblockoffs` smallint(6) NOT NULL,"
-			+ " `subheadtype` smallint(6) NOT NULL," + " `nextblockid` smallint(6) NOT NULL,"
-			+ "  `codeformat` tinyint(4) NOT NULL," + " `byteorder` tinyint(4) unsigned NOT NULL,"
-			+ " `datalen` tinyint(4) unsigned NOT NULL," + " `subhreserve` tinyint(4) unsigned DEFAULT NULL,"
-			+ " `subblocktype` smallint(6) NOT NULL," + " `dimension` tinyint(1) unsigned NOT NULL,"
-			+ " `subbreserve` char(1) DEFAULT NULL," + "  `sensfactor` int(11) NOT NULL,"
+	private static String createTableSql = "CREATE TABLE `wavefdata_t` ("
+			+ "  `id` int(11) NOT NULL,"
+			+ "  `qid` char(1) NOT NULL DEFAULT 'D',"
+			+ "  `hreserve` tinyint(1) unsigned DEFAULT NULL,"
+			+ "`localid` char(2) NOT NULL," + "`channid` char(2) NOT NULL,"
+			+ "`starttime` bigint(20) NOT NULL,"
+			+ "`samcount` smallint(6) NOT NULL,"
+			+ "`samfactor` smallint(6) NOT NULL,"
+			+ "`sammul` smallint(6) NOT NULL,"
+			+ "`actid` tinyint(4) unsigned NOT NULL,"
+			+ "`iocflag` tinyint(4) unsigned NOT NULL,"
+			+ "`dataqflag` tinyint(4) unsigned NOT NULL,"
+			+ "`blockcount` tinyint(4) unsigned NOT NULL,"
+			+ "`timecorr` int(11) NOT NULL,"
+			+ "`dataoffs` smallint(6) NOT NULL,"
+			+ " `subblockoffs` smallint(6) NOT NULL,"
+			+ " `subheadtype` smallint(6) NOT NULL,"
+			+ " `nextblockid` smallint(6) NOT NULL,"
+			+ "  `codeformat` tinyint(4) NOT NULL,"
+			+ " `byteorder` tinyint(4) unsigned NOT NULL,"
+			+ " `datalen` tinyint(4) unsigned NOT NULL,"
+			+ " `subhreserve` tinyint(4) unsigned DEFAULT NULL,"
+			+ " `subblocktype` smallint(6) NOT NULL,"
+			+ " `dimension` tinyint(1) unsigned NOT NULL,"
+			+ " `subbreserve` char(1) DEFAULT NULL,"
+			+ "  `sensfactor` int(11) NOT NULL,"
 			+ " `datablock` tinyblob NOT NULL," + "  PRIMARY KEY (`id`)" + ");";
 }

@@ -1,17 +1,16 @@
 package com.eqcli.task;
 
+import io.netty.channel.ChannelHandlerContext;
+
 import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.eqcli.application.ClientApp;
 import com.eqcli.dao.WavefDataDao;
-import com.eqcli.util.Constant;
 import com.eqcli.util.DataBuilder;
 import com.eqsys.msg.MsgConstant;
 import com.eqsys.msg.data.WavefData;
-
-import io.netty.channel.ChannelHandlerContext;
 
 /** 连续传输模式 */
 public class ContinuousTask extends TransTask {
@@ -22,7 +21,6 @@ public class ContinuousTask extends TransTask {
 	private static LinkedList<WavefData> sendQueue;
 	private int queueCapacity = 20;   //容量
 	private WavefDataDao dao;
-	private int speed = 1000;     //发送速率 单位ms
 	private int lastSendedId = 0;
 
 	private int tmp;
@@ -71,7 +69,9 @@ public class ContinuousTask extends TransTask {
 
 	/** 向发送队列中加载数据 */
 	private void Reloading(int start, int count) {
-		sendQueue.addAll(dao.get(start, count));
+		List list = dao.get(start, count);
+		//System.err.println("reloading:"+list.size());
+		sendQueue.addAll(list);
 	}
 
 	/** 发送到服务端 */
@@ -79,7 +79,7 @@ public class ContinuousTask extends TransTask {
 		
 		WavefData data = sendQueue.removeFirst();
 		lastSendedId = data.getId();
-		log.info("发送波形数据:"+lastSendedId);
+//		log.info("发送波形数据:"+lastSendedId);
 		context.writeAndFlush(DataBuilder.buildWavefDataMsg(MsgConstant.TYPE_WC, data));
 	}
 }

@@ -37,8 +37,8 @@ public class RegReqHandler extends ChannelHandlerAdapter {
 
 		send(ctx, DataBuilder.buildRegMsg()); // 发送注册信息包
 
-		// 发送完注册信息后也要设定超时,注册超时
-		reconnectTask = ctx.executor().schedule(new ReconnectTask(), 10,
+		// 发送完注册信息后也要设定超时,注册超时(超时时间的设定与网络情况关系很大)
+		reconnectTask = ctx.executor().schedule(new ReconnectTask(ctx), 180,
 				TimeUnit.SECONDS);
 	};
 
@@ -60,13 +60,13 @@ public class RegReqHandler extends ChannelHandlerAdapter {
 			RegRspMsg rrMsg = (RegRspMsg) msg;
 			if (rrMsg.getAuthenState() == MsgConstant.REG_SUCCESS) { // 注册成功
 
-				log.info("向服务器注册成功");
+				log.info("注册成功");
 				// 开始发送心跳任务(暂时不需要心跳)
 //				heartBeatTask = ctx.executor().scheduleAtFixedRate(
 //						new HeartbeatTask(ctx), 0, 1, TimeUnit.SECONDS);
 				
 				// 将注册应答包消息中的一些参数(上次包序列号)透传到CtrlRespHandler
-				ctx.fireChannelRead(msg); 
+				ctx.fireChannelRead(msg);
 			} else {
 
 				log.error("向服务器注册失败,认证失败");
@@ -77,8 +77,8 @@ public class RegReqHandler extends ChannelHandlerAdapter {
 			}
 			if (reconnectTask != null) {
 				reconnectTask.cancel(true);
+				reconnectTask = null;
 			}
-			reconnectTask = null;
 
 		} else {
 			ctx.fireChannelRead(msg);
@@ -104,11 +104,16 @@ public class RegReqHandler extends ChannelHandlerAdapter {
 	 */
 	private class ReconnectTask implements Runnable {
 
+		private ChannelHandlerContext ctx;
+		public ReconnectTask(ChannelHandlerContext ctx){
+			this.ctx = ctx;
+		}
 		@Override
 		public void run() {
 
+			ctx.close();
 			// 如果连接失败则重连
-			log.info("向服务器注册超时,启动重连");
+//			log.info("向服务器注册超时,启动重连");
 			client.reconnect();
 		}
 	}
@@ -164,8 +169,13 @@ public class RegReqHandler extends ChannelHandlerAdapter {
 //		if (heartBeatTask != null) {
 //			heartBeatTask.cancel(true);
 //		}
-		// 重连
-		reconnectTask = ctx.executor().schedule(new ReconnectTask(), 2,
+		// 防止定时重连任务重复开启
+		if(reconnectTask != null){
+			reconnectTask.cancel(true);
+			reconnectTask = null;
+		}
+		log.error("中断重连");
+		reconnectTask = ctx.executor().schedule(new ReconnectTask(ctx), 10,
 				TimeUnit.SECONDS);
 	}
 }

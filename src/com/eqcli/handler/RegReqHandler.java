@@ -26,7 +26,7 @@ public class RegReqHandler extends ChannelHandlerAdapter {
 	private Logger log = Logger.getLogger(RegReqHandler.class);
 	// private boolean isRegister; //是否注册成功
 	private ClientApp client;
-	private ScheduledFuture reconnectTask;
+	private static ScheduledFuture reconnectTask;
 
 	public RegReqHandler(ClientApp client) {
 		this.client = client;
@@ -61,9 +61,7 @@ public class RegReqHandler extends ChannelHandlerAdapter {
 			if (rrMsg.getAuthenState() == MsgConstant.REG_SUCCESS) { // 注册成功
 
 				log.info("注册成功");
-				// 开始发送心跳任务(暂时不需要心跳)
-//				heartBeatTask = ctx.executor().scheduleAtFixedRate(
-//						new HeartbeatTask(ctx), 0, 1, TimeUnit.SECONDS);
+				
 				
 				// 将注册应答包消息中的一些参数(上次包序列号)透传到CtrlRespHandler
 				ctx.fireChannelRead(msg);
@@ -93,6 +91,7 @@ public class RegReqHandler extends ChannelHandlerAdapter {
 //			interruptAndReconnect(ctx);
 //			ctx.close();
 //		}
+		log.error("异常: "+ cause.toString());
 		// 无论是否是超时异常,都要透传该异常
 		ctx.fireExceptionCaught(cause);
 	}
@@ -111,7 +110,7 @@ public class RegReqHandler extends ChannelHandlerAdapter {
 		@Override
 		public void run() {
 
-			ctx.close();
+			//ctx.close();
 			// 如果连接失败则重连
 //			log.info("向服务器注册超时,启动重连");
 			client.reconnect();

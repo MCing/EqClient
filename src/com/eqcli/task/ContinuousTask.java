@@ -4,6 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
@@ -69,9 +70,22 @@ public class ContinuousTask extends TransTask {
 
 	/** 向发送队列中加载数据 */
 	private void Reloading(int start, int count) {
-		List list = dao.get(start, count);
-		//System.err.println("reloading:"+list.size());
-		sendQueue.addAll(list);
+		//test
+//		context.executor().schedule(new Runnable(){
+//
+//			@Override
+//			public void run() {
+				
+				List list = dao.get(start, count);
+				sendQueue.addAll(list);
+//				log.error("reloading:"+list.size());
+//			}
+//			
+//		}, 0, TimeUnit.MILLISECONDS);
+//		long startTime = System.currentTimeMillis();
+//		List list = dao.get(start, count);
+//		sendQueue.addAll(list);
+//		log.error("reloading:"+list.size()+" using:"+(System.currentTimeMillis() - startTime));
 	}
 
 	/** 发送到服务端 */
@@ -79,7 +93,7 @@ public class ContinuousTask extends TransTask {
 		
 		WavefData data = sendQueue.removeFirst();
 		lastSendedId = data.getId();
-//		log.info("发送波形数据:"+lastSendedId);
+		log.info("发送波形数据:"+lastSendedId);
 		context.writeAndFlush(DataBuilder.buildWavefDataMsg(MsgConstant.TYPE_WC, data));
 	}
 }

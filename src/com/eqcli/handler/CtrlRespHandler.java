@@ -4,7 +4,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
-import com.eqcli.application.ClientApp;
+import com.eqcli.application.EqClient;
 import com.eqcli.task.ContinuousTask;
 import com.eqcli.task.ContinuousTask;
 import com.eqcli.task.TrgNoWaveTask;
@@ -80,7 +80,6 @@ public class CtrlRespHandler extends ChannelHandlerAdapter {
 
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-		System.err.println("CtrlRespHandler:inactive");
 		switchTransMode(Constant.MODE_IDLE, ctx);
 	}
 
@@ -121,12 +120,10 @@ public class CtrlRespHandler extends ChannelHandlerAdapter {
 	 */
 	private void switchTransMode(short mode, ChannelHandlerContext ctx) {
 
-		mode = (mode == 0) ? ClientApp.transMode : mode;
+		mode = (mode == 0) ? EqClient.transMode : mode;
 		if (mode != Constant.MODE_IDLE) {
-			ClientApp.transMode = mode;
+			EqClient.transMode = mode;
 		}
-		
-		System.err.println("switchTransMode:" + mode);
 		// 延时后启动相应模式,延时是为了让正在运行模式的任务处理完
 		switch (mode) {
 		case Constant.MODE_CONTINUOUS:

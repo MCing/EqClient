@@ -29,20 +29,30 @@
                             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                               <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                               <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                           </rowConstraints>
                            <children>
-                              <Label text="站台id:" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                              <Label text="传输模式:" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                              <Label text="触发阈值:" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                              <Label text="连接状态:" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-                              <Label text="连接台网id:" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                              <Label alignment="CENTER_RIGHT" text="站台id:" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="1" />
+                              <Label text="传输模式:" GridPane.columnIndex="3" GridPane.halignment="RIGHT" GridPane.rowIndex="3" />
+                              <Label text="触发阈值:" GridPane.columnIndex="3" GridPane.halignment="RIGHT" GridPane.rowIndex="4" />
+                              <Label text="连接状态:" GridPane.columnIndex="3" GridPane.halignment="RIGHT" GridPane.rowIndex="1" />
+                              <Label text="连接台网id:" GridPane.columnIndex="3" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
                               <Label fx:id="stdIdLabel" text="Label" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                              <Label fx:id="modeLabel" text="Label" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-                              <Label fx:id="threshHoldLabel" text="Label" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                              <Label fx:id="modeLabel" text="Label" GridPane.columnIndex="4" GridPane.rowIndex="3" />
+                              <Label fx:id="threshHoldLabel" text="Label" GridPane.columnIndex="4" GridPane.rowIndex="4" />
                               <Label fx:id="stateLabel" text="Label" GridPane.columnIndex="4" GridPane.rowIndex="1" />
                               <Label fx:id="srvIdLabel" text="Label" GridPane.columnIndex="4" GridPane.rowIndex="2" />
-                              <Button mnemonicParsing="false" onAction="#handleConnect" text="连接" GridPane.columnIndex="2" GridPane.rowIndex="4" />
-                              <Button mnemonicParsing="false" onAction="#handleDisconnect" text="断开" GridPane.columnIndex="3" GridPane.rowIndex="4" />
+                              <Button mnemonicParsing="false" onAction="#handleConnect" text="连接" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="6" />
+                              <Button mnemonicParsing="false" onAction="#handleDisconnect" text="断开" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="6" />
+                              <Label text="经度:" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
+                              <Label text="纬度:" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="3" />
+                              <Label text="高程:" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="4" />
+                              <Label text="灵敏度:" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="5" />
+                              <Label fx:id="longitudeLabel" text="Label" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                              <Label fx:id="latitudeLabel" text="Label" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                              <Label fx:id="altitudeLabel" text="Label" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+                              <Label fx:id="sensitivityLabel" text="Label" GridPane.columnIndex="2" GridPane.rowIndex="5" />
                            </children>
                         </GridPane>
                      </children>
@@ -87,9 +97,11 @@
                         <Label text="端口:" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                         <TextField fx:id="ipTf" GridPane.columnIndex="2" />
                         <TextField fx:id="portTf" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                        <Button mnemonicParsing="false" onAction="#handleSave" text="保存" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                        <Label text="认证码:" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                        <TextField fx:id="codeTf" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                        <Button mnemonicParsing="false" onAction="#handleSave" text="保存" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                        <Label text="认证码:" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                        <TextField fx:id="codeTf" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                        <Label text="台网代号:" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <TextField fx:id="srvIdTf" GridPane.columnIndex="2" GridPane.rowIndex="2" />
                      </children>
                      <columnConstraints>
                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -98,6 +110,7 @@
                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                      </columnConstraints>
                      <rowConstraints>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />

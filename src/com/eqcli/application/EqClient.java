@@ -21,6 +21,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -39,13 +41,14 @@ import com.eqcli.util.LogUtil;
 import com.eqcli.util.SysConfig;
 import com.eqcli.view.ClientMainController;
 
-public class ClientApp extends Application {
+public class EqClient extends Application {
 
-	private Logger log = Logger.getLogger(ClientApp.class);
+	private Logger log = Logger.getLogger(EqClient.class);
 	
 	private String mainPagePath = "/com/eqcli/view/ClientMainLayout.fxml";
 	private String iconPath = "/com/eqcli/view/images/icon.png";
 
+	private ClientMainController controller;
 	private boolean isConnected = false; // tcp链路连接标志
 	
 	private Channel channel;
@@ -126,8 +129,8 @@ public class ClientApp extends Application {
 		Node page = null;
 		try {
 			page = loader.load();
-			ClientMainController controller = loader.getController();
-			controller.setMainApp(ClientApp.this);
+			controller = loader.getController();
+			controller.setMainApp(EqClient.this);
 		} catch (IOException e) {
 			log.error("页面加载失败:"+e.getMessage());
 		}
@@ -160,7 +163,7 @@ public class ClientApp extends Application {
 					new ObjectDecoder(1024, ClassResolvers.cacheDisabled(this
 							.getClass().getClassLoader())));
 			ch.pipeline().addLast(new ObjectEncoder());
-			pipeline.addLast(new RegReqHandler(ClientApp.this));
+			pipeline.addLast(new RegReqHandler(EqClient.this));
 			pipeline.addLast(new CtrlRespHandler());
 		}
 
@@ -174,8 +177,6 @@ public class ClientApp extends Application {
 		// 启动连接线程
 		if(channel == null || !channel.isActive()){
 			executor.execute(new ConnectTask());
-		}else{
-			System.err.println("connect faild");
 		}
 	}
 	
@@ -198,13 +199,11 @@ public class ClientApp extends Application {
 		@Override
 		public void run() {
 			ChannelFuture f = null;
-			System.err.println("ConnectTask");
 			while (!isConnected && !executor.isShutdown()) {
 				try {
 					f = bootstrap.connect(SysConfig.getServerIp(),
 							SysConfig.getServerPort()).sync();
 					if (f.isSuccess()) {
-						System.err.println("isSuccess");
 						channel = f.channel();
 						isConnected = true;
 					}
@@ -239,4 +238,21 @@ public class ClientApp extends Application {
 		isConnected = false;
 		connectToHost();
 	}
+	
+	/** 更新连接状态UI 
+	 * @param isConnect  连接状态   true:已连接
+	 * @param srvId      台网服务器 id
+	 */
+	public void updateGUI(final boolean isConnect, final String srvId){
+		
+		//只能在JavaFX UI线程上修改UI
+		Platform.runLater(new Runnable() {
+	        @Override
+	        public void run() {
+				controller.updateConnectState(isConnect, srvId);
+	        }
+	   });
+		
+	}
+	
 }

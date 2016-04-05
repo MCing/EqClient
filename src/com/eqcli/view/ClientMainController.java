@@ -1,7 +1,9 @@
 package com.eqcli.view;
 
-import com.eqcli.application.ClientApp;
+import com.eqcli.application.EqClient;
 import com.eqcli.util.Constant;
+import com.eqcli.util.EqConfig;
+import com.eqcli.util.ParseUtil;
 import com.eqcli.util.SysConfig;
 
 import javafx.fxml.FXML;
@@ -11,11 +13,19 @@ import javafx.scene.control.TextField;
 
 public class ClientMainController {
 	
-	private ClientApp mainApp;
+	private EqClient mainApp;
 
 	//主页tab
 	@FXML
 	private Label stdIdLabel;
+	@FXML
+	private Label longitudeLabel;
+	@FXML
+	private Label latitudeLabel;
+	@FXML
+	private Label altitudeLabel;
+	@FXML
+	private Label sensitivityLabel;
 	@FXML
 	private Label modeLabel;
 	@FXML
@@ -39,6 +49,8 @@ public class ClientMainController {
 	@FXML
 	private TextField portTf;
 	@FXML
+	private TextField srvIdTf;
+	@FXML
 	private TextField codeTf;
 	@FXML
 	private Button saveBtn;
@@ -49,25 +61,32 @@ public class ClientMainController {
 		initDbTab();
 		initConfigTab();
 	}
-	
+	/** 初始化主页 tab */
 	private void initMainTab(){
-		stdIdLabel.setText(Constant.stationId);
-		modeLabel.setText("");
-		threshHoldLabel.setText("");
+		stdIdLabel.setText(EqConfig.stdId);
+		modeLabel.setText(ParseUtil.parseTransMode(EqConfig.transMode));   
+		threshHoldLabel.setText(String.valueOf(EqConfig.triggerThreshold));
 		stateLabel.setText("未连接");
-		srvIdLabel.setText("");
+		srvIdLabel.setText(EqConfig.defaultSrv);
+		longitudeLabel.setText(String.valueOf(EqConfig.longitude));
+		latitudeLabel.setText(String.valueOf(EqConfig.latitude));
+		altitudeLabel.setText(String.valueOf(EqConfig.altitude));
+		sensitivityLabel.setText(String.valueOf(EqConfig.sensitivity));
+		
 	}
 	
+	/** 初始化数据库管理Tab */
 	private void initDbTab(){
+		//未完成
 		dbnameLabel.setText("");
 	}
-	
+	/** 初始化连接配置Tab */
 	private void initConfigTab(){
 		
 		ipTf.setText(SysConfig.getServerIp());
 		portTf.setText(String.valueOf(SysConfig.getServerPort()));
-		//未存入配置文件
-		codeTf.setText(Constant.authorcode);
+		codeTf.setText(EqConfig.authenCode);
+		srvIdTf.setText(EqConfig.defaultSrv);
 	}
 	
 	@FXML
@@ -81,12 +100,22 @@ public class ClientMainController {
 		mainApp.disconnect();
 	}
 	
+	/** 保存修改后的配置,未完成 */
 	@FXML
 	private void handleSave(){
-		
 	}
 	
-	public void setMainApp(ClientApp client){
+	public void setMainApp(EqClient client){
 		this.mainApp = client;
+	}
+	
+	/** 更新连接状态 */
+	public void updateConnectState(boolean isConnect, String srvId){
+		
+		if(isConnect){
+			stateLabel.setText("已连接");
+		}else{
+			stateLabel.setText("未连接");
+		}
 	}
 }

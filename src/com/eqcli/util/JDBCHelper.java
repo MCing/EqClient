@@ -91,7 +91,7 @@ public class JDBCHelper {
 	// 创建临时数据库
 	private static void testPrepareDb() {
 
-		String tmpDatabase = "test" + Constant.stationId;
+		String tmpDatabase = "test" + EqConfig.stdId;
 		Connection conn = getDBConnection();
 		try {
 			// 创建数据库

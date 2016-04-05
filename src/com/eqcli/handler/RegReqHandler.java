@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
-import com.eqcli.application.ClientApp;
+import com.eqcli.application.EqClient;
 import com.eqcli.util.Constant;
 import com.eqcli.util.DataBuilder;
 import com.eqsys.msg.BaseMsg;
@@ -19,16 +19,17 @@ import com.eqsys.msg.MsgConstant;
 import com.eqsys.msg.RegRspMsg;
 
 /**
- * 处理注册响应包 处理注册超时重连 发送心跳请求消息
+ * 处理注册响应包
+ * 处理注册超时重连 发送心跳请求消息
  */
 public class RegReqHandler extends ChannelHandlerAdapter {
 
 	private Logger log = Logger.getLogger(RegReqHandler.class);
 	// private boolean isRegister; //是否注册成功
-	private ClientApp client;
+	private EqClient client;
 	private static ScheduledFuture reconnectTask;
 
-	public RegReqHandler(ClientApp client) {
+	public RegReqHandler(EqClient client) {
 		this.client = client;
 	}
 
@@ -44,6 +45,7 @@ public class RegReqHandler extends ChannelHandlerAdapter {
 
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+		client.updateGUI(false, null);
 		interruptAndReconnect(ctx);
 		ctx.fireChannelInactive();
 	}
@@ -62,7 +64,7 @@ public class RegReqHandler extends ChannelHandlerAdapter {
 
 				log.info("注册成功");
 				
-				
+				client.updateGUI(true, rrMsg.getSrvId());
 				// 将注册应答包消息中的一些参数(上次包序列号)透传到CtrlRespHandler
 				ctx.fireChannelRead(msg);
 			} else {
@@ -109,38 +111,10 @@ public class RegReqHandler extends ChannelHandlerAdapter {
 		}
 		@Override
 		public void run() {
-
-			//ctx.close();
-			// 如果连接失败则重连
-//			log.info("向服务器注册超时,启动重连");
+			
 			client.reconnect();
 		}
 	}
-
-	/**
-	 * 发送心跳请求任务
-	 *
-	 */
-//	private class HeartbeatTask implements Runnable {
-//
-//		private BaseMsg nullMsg;
-//		private ChannelHandlerContext context;
-//
-//		public HeartbeatTask(ChannelHandlerContext ctx) {
-//			context = ctx;
-//			nullMsg = new BaseMsg();
-//			nullMsg.setMsgType(MsgConstant.TYPE_HB);
-//			nullMsg.setSrvId(Constant.serverId);
-//			nullMsg.setStId(Constant.stationId);
-//		}
-//
-//		@Override
-//		public void run() {
-//
-//			send(context, nullMsg);
-//		}
-//
-//	}
 
 	/**
 	 * 发送数据出口
@@ -165,9 +139,6 @@ public class RegReqHandler extends ChannelHandlerAdapter {
 	 */
 	private void interruptAndReconnect(ChannelHandlerContext ctx) {
 
-//		if (heartBeatTask != null) {
-//			heartBeatTask.cancel(true);
-//		}
 		// 防止定时重连任务重复开启
 		if(reconnectTask != null){
 			reconnectTask.cancel(true);
@@ -177,4 +148,5 @@ public class RegReqHandler extends ChannelHandlerAdapter {
 		reconnectTask = ctx.executor().schedule(new ReconnectTask(ctx), 10,
 				TimeUnit.SECONDS);
 	}
+	
 }

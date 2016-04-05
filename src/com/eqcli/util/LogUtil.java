@@ -27,7 +27,7 @@ public class LogUtil {
 		prop.setProperty("log4j.appender.ServerDailyRollingFile.DatePattern", "'.'yyyy-MM-dd ");
 		
 		//配置不同的输出路径
-		prop.setProperty("log4j.appender.ServerDailyRollingFile.File", "D://logs/clientlog"+Constant.stationId+".log ");
+		prop.setProperty("log4j.appender.ServerDailyRollingFile.File", "D://logs/clientlog"+EqConfig.stdId+".log ");
 		prop.setProperty("log4j.appender.ServerDailyRollingFile.layout", "org.apache.log4j.PatternLayout");
 		prop.setProperty("log4j.appender.ServerDailyRollingFile.layout.ConversionPattern", "%d{MM-dd HH:mm:ss} %p [%c] %m%n");
 		prop.setProperty("log4j.appender.ServerDailyRollingFile.Append", "true");

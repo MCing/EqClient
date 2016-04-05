@@ -2,7 +2,7 @@ package com.eqcli.util;
 
 import java.util.Random;
 
-import com.eqcli.application.ClientApp;
+import com.eqcli.application.EqClient;
 import com.eqsys.msg.CtrlCmdRspMsg;
 import com.eqsys.msg.MsgConstant;
 import com.eqsys.msg.RegMsg;
@@ -21,17 +21,17 @@ public class DataBuilder {
 	public static RegMsg buildRegMsg(){
 		
 		RegMsg regMsg = new RegMsg();
-		regMsg.setAuthenCode(Constant.authorcode);
-		regMsg.setAltitude((short) random.nextInt(200));
-		regMsg.setLatitude(random.nextInt(300)*100000);
-		regMsg.setLongitude(random.nextInt(300)*100000);
 		regMsg.setMsgType(MsgConstant.TYPE_RE);
-		regMsg.setId(random.nextInt(100));
-		regMsg.setSensitivity(1000);
-		regMsg.setStId(Constant.stationId);
-		regMsg.setSrvId(Constant.serverId);
-		regMsg.setTransMode(ClientApp.transMode);
-		regMsg.setTriggerThreshold((short) random.nextInt(200));
+		regMsg.setId(random.nextInt(100));  //包序号随机产生
+		regMsg.setAuthenCode(EqConfig.authenCode);
+		regMsg.setAltitude(EqConfig.altitude);
+		regMsg.setLatitude(EqConfig.latitude);
+		regMsg.setLongitude(EqConfig.longitude);
+		regMsg.setSensitivity(EqConfig.sensitivity);
+		regMsg.setStId(EqConfig.stdId);
+		regMsg.setSrvId(EqConfig.defaultSrv);
+		regMsg.setTransMode(EqClient.transMode);
+		regMsg.setTriggerThreshold(EqConfig.triggerThreshold);
 		regMsg.setCtrlAuthority((short) 0);
 		return regMsg;
 
@@ -111,8 +111,8 @@ public class DataBuilder {
 		
 		StatusDataMsg data = new StatusDataMsg();
 		data.setMsgType(MsgConstant.TYPE_SI);
-		data.setSrvId(Constant.serverId);
-		data.setStId(Constant.stationId);
+		data.setSrvId(EqConfig.defaultSrv);
+		data.setStId(EqConfig.stdId);
 		data.setStatusData(buildStatusData(id));
 		return data;
 		
@@ -124,8 +124,8 @@ public class DataBuilder {
 		WavefDataMsg msg = new WavefDataMsg();
 
 		msg.setMsgType(type);
-		msg.setSrvId(Constant.serverId);
-		msg.setStId(Constant.stationId);
+		msg.setSrvId(EqConfig.defaultSrv);
+		msg.setStId(EqConfig.stdId);
 		msg.setWavefData(data);
 		
 		return msg;
@@ -167,8 +167,8 @@ public class DataBuilder {
 	public static TriggleMsg buildTriggleMsg(TrgData triggerData){
 		TriggleMsg msg = new TriggleMsg();
 		msg.setMsgType(MsgConstant.TYPE_TI);
-		msg.setSrvId(Constant.serverId);
-		msg.setStId(Constant.stationId);
+		msg.setSrvId(EqConfig.defaultSrv);
+		msg.setStId(EqConfig.stdId);
 		msg.setTriggerData(triggerData);
 		return msg;
 	}

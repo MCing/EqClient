@@ -2,7 +2,7 @@ package com.eqcli.task;
 
 import java.util.Random;
 
-import com.eqcli.application.ClientApp;
+import com.eqcli.application.EqClient;
 import com.eqcli.util.Constant;
 import com.eqcli.util.DataBuilder;
 
@@ -24,7 +24,7 @@ public class TrgNoWaveTask extends TransTask {
 		if(context == null){
 			return;
 		}
-		while(ClientApp.transMode == Constant.MODE_TRG_NWAV){		
+		while(EqClient.transMode == Constant.MODE_TRG_NWAV){		
 			//未完成
 			
 			try {

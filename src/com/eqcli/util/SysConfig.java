@@ -32,22 +32,16 @@ public class SysConfig {
 	public static void preConfig(){
 		Properties  prop = getPropertiesFromFile();
 		if(prop != null){
+			//数据库配置
 			jdbcUser = prop.getProperty("JDBC_USER");
 			jdbcPasswd = prop.getProperty("JDBC_PASSWORD");
 			jdbcDb = prop.getProperty("JDBC_DATABASE");
 			jdbcPort = Integer.valueOf(prop.getProperty("JDBC_PORT"));
 			jdbcServerName = prop.getProperty("JDBC_SERVERNAME");
-			
+			//服务器配置
 			serverIp = prop.getProperty("SERVER_IP", "localhost");
 			serverPort = Integer.valueOf(prop.getProperty("SERVER_PORT", "3306"));
-			
-//			System.err.println("user:"+jdbcUser);
-//			System.err.println("password:"+jdbcPasswd);
-//			System.err.println("database:"+jdbcDb);
-//			System.err.println("database port:"+jdbcPort);
-//			System.err.println("servername:"+jdbcServerName);
-//			System.err.println("ip:"+serverIp);
-//			System.err.println("port:"+serverPort);
+			//系统信息配置
 			
 		}else{
 			log.error("配置文件读取失败!");

@@ -16,6 +16,8 @@ import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -125,7 +127,7 @@ public class EqClient extends Application {
 
 	private Node loadMainPage() {
 		FXMLLoader loader = new FXMLLoader();
-		loader.setLocation(getClass().getResource(mainPagePath));
+		loader.setLocation(getFXMLURL(mainPagePath));
 		Node page = null;
 		try {
 			page = loader.load();
@@ -254,5 +256,31 @@ public class EqClient extends Application {
 	   });
 		
 	}
+	
+	/**
+	 * 为了解决打包成jar包后找不到fxml文件的问题
+	 * @param path  fxml的绝对路径(这里的绝对路径是相对于工程的)
+	 * @return
+	 */
+	private URL getFXMLURL(String path) {
+
+		URL url = null;
+		url = this.getClass().getResource(path);
+		try {
+			//打包成jar包后不能通过getResource得到类路径
+			//所以,jar包中的文件用url表示方法:  jar:url!{entity}
+			//如 :     jar:file:/c:/a/b.jar!/com/test/a.txt
+			if (url == null) {
+				URL jarUrl = this.getClass().getProtectionDomain()
+						.getCodeSource().getLocation();
+				url = new URL("jar:" + jarUrl + "!" + path);
+			}
+		} catch (MalformedURLException e1) {
+			e1.printStackTrace();
+		}
+		System.err.println("url:"+url.toExternalForm());
+		return url;
+	}
+
 	
 }

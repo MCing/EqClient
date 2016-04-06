@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+Class-Path: lib/jfxrt.jar lib/log4j-1.2.17.jar lib/mysql-connector-java-5.1.38-bin.jar lib/netty-all-5.0.0.Alpha2.jar
+Main-Class: com.eqcli.application.EqClient

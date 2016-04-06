@@ -1,15 +1,18 @@
 package com.eqsys.msg.data;
 
+import java.io.Serializable;
+
 /**
  * 触发信息数据
  *
  */
-public class TrgData extends BaseData {
+public class TrgData implements Serializable{
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	private int id;      //包序号,此包序号与Header中的相同,这里是为了配合数据库使用
 	private long startTimeSec; 		//初动时间整秒   触发时间整秒值（绝对UTC时间）
 	private short startTimeMs;		//初动时间毫秒 触发时间整毫秒值（绝对UTC时间）
 	private short  relTimeSec;			//相对时间	单位秒，与初动时间的相对时间
@@ -36,6 +39,13 @@ public class TrgData extends BaseData {
 	private int nsToPsa30;
 
 	
+	
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
 	public long getStartTimeSec() {
 		return startTimeSec;
 	}

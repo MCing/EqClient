@@ -1,22 +1,19 @@
 package com.eqcli.handler;
 
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelHandlerAdapter;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.timeout.ReadTimeoutException;
-import io.netty.handler.timeout.WriteTimeoutException;
-import io.netty.util.concurrent.ScheduledFuture;
-
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
 import com.eqcli.application.EqClient;
-import com.eqcli.util.Constant;
 import com.eqcli.util.DataBuilder;
-import com.eqsys.msg.BaseMsg;
+import com.eqsys.msg.EqMessage;
 import com.eqsys.msg.MsgConstant;
-import com.eqsys.msg.RegRspMsg;
+import com.eqsys.msg.RegResp;
+
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandlerAdapter;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.util.concurrent.ScheduledFuture;
 
 /**
  * 处理注册响应包
@@ -36,8 +33,8 @@ public class RegReqHandler extends ChannelHandlerAdapter {
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 
-		send(ctx, DataBuilder.buildRegMsg()); // 发送注册信息包
 
+		send(ctx, DataBuilder.buildRegMsg()); // 发送注册信息包
 		// 发送完注册信息后也要设定超时,注册超时(超时时间的设定与网络情况关系很大)
 		reconnectTask = ctx.executor().schedule(new ReconnectTask(ctx), 180,
 				TimeUnit.SECONDS);
@@ -54,17 +51,16 @@ public class RegReqHandler extends ChannelHandlerAdapter {
 	public void channelRead(ChannelHandlerContext ctx, Object msg)
 			throws Exception {
 
-		BaseMsg revMsg = (BaseMsg) msg;
-		String msgType = revMsg.getMsgType();
+		EqMessage eqMsg = (EqMessage) msg;
+		String msgType = eqMsg.getHeader().getMsgType();
 		log.info("收到数据包类型:" + msgType);
 		if (MsgConstant.TYPE_RR.equals(msgType)) { // 注册回应消息
 
-			RegRspMsg rrMsg = (RegRspMsg) msg;
-			if (rrMsg.getAuthenState() == MsgConstant.REG_SUCCESS) { // 注册成功
+			RegResp bodyMsg = (RegResp) eqMsg.getBody();
+			if (bodyMsg.getAuthenState() == MsgConstant.REG_SUCCESS) { // 注册成功
 
 				log.info("注册成功");
-				
-				client.updateGUI(true, rrMsg.getSrvId());
+				client.updateGUI(true, eqMsg.getHeader().getServerId());
 				// 将注册应答包消息中的一些参数(上次包序列号)透传到CtrlRespHandler
 				ctx.fireChannelRead(msg);
 			} else {

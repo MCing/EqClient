@@ -4,32 +4,36 @@ import java.io.Serializable;
 
 public class Header implements Serializable {
 
-	private String msgType; // 类型
-	private String srvId; // 服务端ID 2bytes
-	private String stId; // 烈度仪ID 5bytes
-
-	// getter and setter
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private String msgType; 		// 类型
+	private String serverId; 	// 服务端ID 2bytes
+	private String stationId; 	// 烈度仪ID 5bytes
+	private int pid;     		//包序号
 	public String getMsgType() {
 		return msgType;
 	}
-
 	public void setMsgType(String msgType) {
 		this.msgType = msgType;
 	}
-
-	public String getSrvId() {
-		return srvId;
+	public String getServerId() {
+		return serverId;
 	}
-
-	public void setSrvId(String srvId) {
-		this.srvId = srvId;
+	public void setServerId(String serverId) {
+		this.serverId = serverId;
 	}
-
-	public String getStId() {
-		return stId;
+	public String getStationId() {
+		return stationId;
 	}
-
-	public void setStId(String stId) {
-		this.stId = stId;
+	public void setStationId(String stationId) {
+		this.stationId = stationId;
+	}
+	public int getPid() {
+		return pid;
+	}
+	public void setPid(int pid) {
+		this.pid = pid;
 	}
 }

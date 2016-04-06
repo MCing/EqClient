@@ -1,12 +1,14 @@
 package com.eqsys.msg.data;
 
-public class WavefData extends BaseData {
+import java.io.Serializable;
+
+public class WavefData implements Serializable{
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+	private int id;      //包序号,此包序号与Header中的相同,这里是为了配合数据库使用
 	private String qid = "D"; //质量标识符 1B  常量D
 	private byte hrsv;   //保留字节
 	private String localId; //位置标识符 2B
@@ -40,8 +42,17 @@ public class WavefData extends BaseData {
 	private byte[] dataBlock;    // 待定,不能直接用Blob,没有构造方法
 
 	//getter and setter
+	
 	public String getQuality() {
 		return qid;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	public void setQuality(String quality) {

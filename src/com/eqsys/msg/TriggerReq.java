@@ -1,22 +1,25 @@
 package com.eqsys.msg;
 
-/**
- * 6.时间段触发控制包
- * 发送端：服务器
- * 标识符：CC
- *
- */
-public class PeriodTriggleCtrlMsg extends BaseCmdMsg {
+import java.io.Serializable;
+
+public class TriggerReq extends CommandReq{
+
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+//	private short subCommand;  			//子控制命令 
 	private long startTime;			//触发开始时间  绝对UTC时间
 	private long endTime;			//触发结束时间  绝对UTC时间
 	
 	//getter and setter
+//	public short getSubCommand() {
+//		return subCommand;
+//	}
+//	public void setSubCommand(short subCommand) {
+//		this.subCommand = subCommand;
+//	}
 	public long getStartTime() {
 		return startTime;
 	}
@@ -29,5 +32,4 @@ public class PeriodTriggleCtrlMsg extends BaseCmdMsg {
 	public void setEndTime(long endTime) {
 		this.endTime = endTime;
 	}
-	
 }

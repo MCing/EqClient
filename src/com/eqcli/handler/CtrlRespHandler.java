@@ -6,24 +6,17 @@ import org.apache.log4j.Logger;
 
 import com.eqcli.application.EqClient;
 import com.eqcli.task.ContinuousTask;
-import com.eqcli.task.ContinuousTask;
-import com.eqcli.task.TrgNoWaveTask;
-import com.eqcli.task.TrgWithWaveTask;
 import com.eqcli.util.Constant;
 import com.eqcli.util.DataBuilder;
-import com.eqsys.msg.BaseCmdMsg;
-import com.eqsys.msg.BaseMsg;
-import com.eqsys.msg.CtrlCmdRspMsg;
+import com.eqsys.msg.CommandReq;
+import com.eqsys.msg.EqMessage;
 import com.eqsys.msg.MsgConstant;
-import com.eqsys.msg.RegRspMsg;
-import com.eqsys.msg.TransModeMsg;
+import com.eqsys.msg.RegResp;
+import com.eqsys.msg.TransModeReq;
 
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.timeout.WriteTimeoutException;
-import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.ScheduledFuture;
 
 public class CtrlRespHandler extends ChannelHandlerAdapter {
@@ -38,27 +31,26 @@ public class CtrlRespHandler extends ChannelHandlerAdapter {
 	public void channelRead(ChannelHandlerContext ctx, Object msg)
 			throws Exception {
 
-		BaseMsg revMsg = (BaseMsg) msg;
-		String msgType = revMsg.getMsgType();
+		EqMessage eqMsg = (EqMessage) msg;
+		String msgType = eqMsg.getHeader().getMsgType();
 		if (MsgConstant.TYPE_RR.equals(msgType)) {
 
-			RegRspMsg rrMsg = (RegRspMsg) msg;
-			lastPacketId = rrMsg.getLastPacketNo();
+			RegResp bodyMsg = (RegResp) eqMsg.getBody();
+			lastPacketId = bodyMsg.getLastPacketNo();
 		} else if (MsgConstant.TYPE_CC.equals(msgType)) {
 
-			BaseCmdMsg ccMsg = (BaseCmdMsg) msg;
+		   CommandReq bodyMsg = (CommandReq) eqMsg.getBody();
 			short state = 0;
-			switch (ccMsg.getSubCommand()) {
+			switch (bodyMsg.getSubCommand()) {
 			// 对不同的控制命令更改对应的状态,然后返回状态值
 			case MsgConstant.CMD_TRANSMODE: {
 				// state = handle(); //进一步处理返回状态 告知服务器
-				TransModeMsg submsg = (TransModeMsg) msg;
+				TransModeReq submsg = (TransModeReq) bodyMsg;
 				switchTransMode(submsg.getSubTransMode(), ctx);
 			}
 				break;
 			case MsgConstant.CMD_PERIODDATA:
 				System.out.println("时间段数据申请包");
-
 				break;
 			case MsgConstant.CMD_TRGPRIOD:
 				System.out.println("触发阈值设定控制包");
@@ -70,9 +62,9 @@ public class CtrlRespHandler extends ChannelHandlerAdapter {
 				break;
 			}
 
-			// test
-			CtrlCmdRspMsg ccRMsg = DataBuilder.buildCtrlRspMsg(
-					ccMsg.getPacketId(), state, "okok", ccMsg.getSubCommand());
+			// test  状态回应
+			EqMessage ccRMsg = DataBuilder.buildCtrlRspMsg(
+					eqMsg.getHeader().getPid(), state, "okok", bodyMsg.getSubCommand());
 
 			send(ctx, ccRMsg);
 		}

@@ -24,22 +24,6 @@ public class TrgWithWaveTask extends TransTask {
 		if(context == null){
 			return;
 		}
-		while(EqClient.transMode == Constant.MODE_TRG_WAVE){		
-			//未完成
-			
-			try {
-				//if(!isTrigger)
-				if(timeTick%10 == 0){
-					context.writeAndFlush(DataBuilder.buildStatusDataMsg(new Random().nextInt(10000)));
-					timeTick = 1;
-				}else{
-					Thread.sleep(1000);   //等待 10秒 = 1秒  * 10;
-					timeTick++;
-				}
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
 
 	}
 

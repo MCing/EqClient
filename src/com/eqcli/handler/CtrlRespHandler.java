@@ -119,12 +119,28 @@ public class CtrlRespHandler extends ChannelHandlerAdapter {
 		// 延时后启动相应模式,延时是为了让正在运行模式的任务处理完
 		switch (mode) {
 		case Constant.MODE_CONTINUOUS:
+			if(transTask != null && transTask.isCancelled()){
+				boolean ret = transTask.cancel(true);
+				System.err.println("switchTransMode cancel result:"+ret);
+			}
 			transTask = ctx.executor().scheduleAtFixedRate(new ContinuousTask(ctx,
-					lastPacketId), 0, 500, TimeUnit.MILLISECONDS);
+					lastPacketId), 10, 500, TimeUnit.MILLISECONDS);
 			break;
 		case Constant.MODE_TRG_WAVE:
+			if(transTask != null && transTask.isCancelled()){
+				boolean ret = transTask.cancel(true);
+				System.err.println("switchTransMode cancel result:"+ret);
+			}
+			transTask = ctx.executor().scheduleAtFixedRate(new ContinuousTask(ctx,
+					lastPacketId), 10, 500, TimeUnit.MILLISECONDS);
 			break;
 		case Constant.MODE_TRG_NWAV:
+			if(transTask != null && transTask.isCancelled()){
+				boolean ret = transTask.cancel(true);
+				System.err.println("switchTransMode cancel result:"+ret);
+			}
+			transTask = ctx.executor().scheduleAtFixedRate(new ContinuousTask(ctx,
+					lastPacketId), 10, 500, TimeUnit.MILLISECONDS);
 			break;
 		default: // 空闲模式
 			if (transTask != null) {

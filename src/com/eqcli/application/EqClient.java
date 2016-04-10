@@ -36,7 +36,7 @@ import org.apache.log4j.Logger;
 
 import com.eqcli.handler.CtrlRespHandler;
 import com.eqcli.handler.RegReqHandler;
-import com.eqcli.task.DataCreatorTask;
+import com.eqcli.simulation.DataCreatorTask;
 import com.eqcli.util.Constant;
 import com.eqcli.util.JDBCHelper;
 import com.eqcli.util.LogUtil;
@@ -278,7 +278,6 @@ public class EqClient extends Application {
 		} catch (MalformedURLException e1) {
 			e1.printStackTrace();
 		}
-		System.err.println("url:"+url.toExternalForm());
 		return url;
 	}
 

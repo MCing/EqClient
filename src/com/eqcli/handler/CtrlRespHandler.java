@@ -8,10 +8,12 @@ import com.eqcli.application.EqClient;
 import com.eqcli.task.ContinuousTask;
 import com.eqcli.util.Constant;
 import com.eqcli.util.DataBuilder;
+import com.eqcli.util.ParseUtil;
 import com.eqsys.msg.CommandReq;
 import com.eqsys.msg.EqMessage;
 import com.eqsys.msg.MsgConstant;
 import com.eqsys.msg.RegResp;
+import com.eqsys.msg.ThresholdReq;
 import com.eqsys.msg.TransModeReq;
 
 import io.netty.channel.ChannelFuture;
@@ -22,10 +24,14 @@ import io.netty.util.concurrent.ScheduledFuture;
 public class CtrlRespHandler extends ChannelHandlerAdapter {
 
 	private Logger log = Logger.getLogger(CtrlRespHandler.class);
-
+	private EqClient client;
 	private ScheduledFuture transTask;
 
 	private int lastPacketId;
+	
+	public CtrlRespHandler(EqClient client) {
+		this.client = client;
+	}
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg)
@@ -41,19 +47,24 @@ public class CtrlRespHandler extends ChannelHandlerAdapter {
 
 		   CommandReq bodyMsg = (CommandReq) eqMsg.getBody();
 			short state = 0;
+			String respMsg = null;
 			switch (bodyMsg.getSubCommand()) {
 			// 对不同的控制命令更改对应的状态,然后返回状态值
 			case MsgConstant.CMD_TRANSMODE: {
 				// state = handle(); //进一步处理返回状态 告知服务器
 				TransModeReq submsg = (TransModeReq) bodyMsg;
 				switchTransMode(submsg.getSubTransMode(), ctx);
+				respMsg = "切换到"+ParseUtil.parseTransMode(submsg.getSubTransMode());
+				client.updateUI(Constant.UICODE_MODE, ParseUtil.parseTransMode(submsg.getSubTransMode()));
 			}
 				break;
 			case MsgConstant.CMD_PERIODDATA:
 				System.out.println("时间段数据申请包");
 				break;
 			case MsgConstant.CMD_TRGPRIOD:
+				ThresholdReq thrmsg = (ThresholdReq)bodyMsg;
 				System.out.println("触发阈值设定控制包");
+				client.updateUI(Constant.UICODE_THREHOLD, thrmsg.getTriggleThreshold());
 				break;
 			case MsgConstant.CMD_TRGTHRESHOLD:
 				System.out.println("时间段触发控制包");
@@ -64,7 +75,7 @@ public class CtrlRespHandler extends ChannelHandlerAdapter {
 
 			// test  状态回应
 			EqMessage ccRMsg = DataBuilder.buildCtrlRspMsg(
-					eqMsg.getHeader().getPid(), state, "okok", bodyMsg.getSubCommand());
+					eqMsg.getHeader().getPid(), state, respMsg, bodyMsg.getSubCommand());
 
 			send(ctx, ccRMsg);
 		}

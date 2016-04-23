@@ -118,4 +118,26 @@ public class ClientMainController {
 			stateLabel.setText("未连接");
 		}
 	}
+	
+	/** 外部更新UI接口 
+	 * 
+	 * @param updatecode	更新类型码
+	 * @param value			更新值
+	 */
+	public void update(int updatecode, Object value) {
+
+		if(updatecode == Constant.UICODE_STATE){
+			
+			if((boolean)value){
+				stateLabel.setText("已连接");
+			}else{
+				stateLabel.setText("未连接");
+			}
+		}else if(updatecode == Constant.UICODE_MODE){
+			modeLabel.setText(value.toString());
+		}else if(updatecode == Constant.UICODE_THREHOLD){
+			threshHoldLabel.setText(String.valueOf((short)value));
+		}
+		
+	}
 }

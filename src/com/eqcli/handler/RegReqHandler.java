@@ -5,10 +5,12 @@ import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 
 import com.eqcli.application.EqClient;
+import com.eqcli.util.Constant;
 import com.eqcli.util.DataBuilder;
 import com.eqsys.msg.EqMessage;
 import com.eqsys.msg.MsgConstant;
 import com.eqsys.msg.RegResp;
+import com.mysql.jdbc.Constants;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerAdapter;
@@ -42,7 +44,7 @@ public class RegReqHandler extends ChannelHandlerAdapter {
 
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-		client.updateGUI(false, null);
+		client.updateUI(Constant.UICODE_STATE, false);
 		interruptAndReconnect(ctx);
 		ctx.fireChannelInactive();
 	}
@@ -60,7 +62,7 @@ public class RegReqHandler extends ChannelHandlerAdapter {
 			if (bodyMsg.getAuthenState() == MsgConstant.REG_SUCCESS) { // 注册成功
 
 				log.info("注册成功");
-				client.updateGUI(true, eqMsg.getHeader().getServerId());
+				client.updateUI(Constant.UICODE_STATE, true);
 				// 将注册应答包消息中的一些参数(上次包序列号)透传到CtrlRespHandler
 				ctx.fireChannelRead(msg);
 			} else {

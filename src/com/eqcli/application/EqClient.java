@@ -40,8 +40,10 @@ import com.eqcli.simulation.DataCreatorTask;
 import com.eqcli.util.Constant;
 import com.eqcli.util.JDBCHelper;
 import com.eqcli.util.LogUtil;
+import com.eqcli.util.ParseUtil;
 import com.eqcli.util.SysConfig;
 import com.eqcli.view.ClientMainController;
+import com.eqsys.msg.MsgConstant;
 
 public class EqClient extends Application {
 
@@ -127,7 +129,7 @@ public class EqClient extends Application {
 
 	private Node loadMainPage() {
 		FXMLLoader loader = new FXMLLoader();
-		loader.setLocation(getFXMLURL(mainPagePath));
+		loader.setLocation(ParseUtil.getFXMLURL(mainPagePath));
 		Node page = null;
 		try {
 			page = loader.load();
@@ -166,7 +168,7 @@ public class EqClient extends Application {
 							.getClass().getClassLoader())));
 			ch.pipeline().addLast(new ObjectEncoder());
 			pipeline.addLast(new RegReqHandler(EqClient.this));
-			pipeline.addLast(new CtrlRespHandler());
+			pipeline.addLast(new CtrlRespHandler(EqClient.this));
 		}
 
 	}
@@ -241,45 +243,19 @@ public class EqClient extends Application {
 		connectToHost();
 	}
 	
-	/** 更新连接状态UI 
-	 * @param isConnect  连接状态   true:已连接
-	 * @param srvId      台网服务器 id
+	/** 更新UI接口
+	 * @param updatecode	更新类型码
+	 * @param value			更新值
 	 */
-	public void updateGUI(final boolean isConnect, final String srvId){
+	public void updateUI(final int updatecode, final Object value){
+		//_nofinish 更新数据（阈值/模式）到配置文件
 		
-		//只能在JavaFX UI线程上修改UI
 		Platform.runLater(new Runnable() {
 	        @Override
 	        public void run() {
-				controller.updateConnectState(isConnect, srvId);
+	        	controller.update(updatecode, value);
 	        }
 	   });
-		
 	}
-	
-	/**
-	 * 为了解决打包成jar包后找不到fxml文件的问题
-	 * @param path  fxml的绝对路径(这里的绝对路径是相对于工程的)
-	 * @return
-	 */
-	private URL getFXMLURL(String path) {
-
-		URL url = null;
-		url = this.getClass().getResource(path);
-		try {
-			//打包成jar包后不能通过getResource得到类路径
-			//所以,jar包中的文件用url表示方法:  jar:url!{entity}
-			//如 :     jar:file:/c:/a/b.jar!/com/test/a.txt
-			if (url == null) {
-				URL jarUrl = this.getClass().getProtectionDomain()
-						.getCodeSource().getLocation();
-				url = new URL("jar:" + jarUrl + "!" + path);
-			}
-		} catch (MalformedURLException e1) {
-			e1.printStackTrace();
-		}
-		return url;
-	}
-
 	
 }

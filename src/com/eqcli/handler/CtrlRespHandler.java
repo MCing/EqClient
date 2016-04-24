@@ -131,24 +131,21 @@ public class CtrlRespHandler extends ChannelHandlerAdapter {
 		switch (mode) {
 		case Constant.MODE_CONTINUOUS:
 			if(transTask != null && transTask.isCancelled()){
-				boolean ret = transTask.cancel(true);
-				System.err.println("switchTransMode cancel result:"+ret);
+				transTask.cancel(true);
 			}
 			transTask = ctx.executor().scheduleAtFixedRate(new ContinuousTask(ctx,
 					lastPacketId), 10, 500, TimeUnit.MILLISECONDS);
 			break;
 		case Constant.MODE_TRG_WAVE:
 			if(transTask != null && transTask.isCancelled()){
-				boolean ret = transTask.cancel(true);
-				System.err.println("switchTransMode cancel result:"+ret);
+				transTask.cancel(true);
 			}
 			transTask = ctx.executor().scheduleAtFixedRate(new ContinuousTask(ctx,
 					lastPacketId), 10, 500, TimeUnit.MILLISECONDS);
 			break;
 		case Constant.MODE_TRG_NWAV:
 			if(transTask != null && transTask.isCancelled()){
-				boolean ret = transTask.cancel(true);
-				System.err.println("switchTransMode cancel result:"+ret);
+				transTask.cancel(true);
 			}
 			transTask = ctx.executor().scheduleAtFixedRate(new ContinuousTask(ctx,
 					lastPacketId), 10, 500, TimeUnit.MILLISECONDS);

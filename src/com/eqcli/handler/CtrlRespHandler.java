@@ -54,8 +54,10 @@ public class CtrlRespHandler extends ChannelHandlerAdapter {
 				// state = handle(); //进一步处理返回状态 告知服务器
 				TransModeReq submsg = (TransModeReq) bodyMsg;
 				switchTransMode(submsg.getSubTransMode(), ctx);
-				respMsg = "切换到"+ParseUtil.parseTransMode(submsg.getSubTransMode());
-				client.updateUI(Constant.UICODE_MODE, ParseUtil.parseTransMode(submsg.getSubTransMode()));
+				short tmpMode = submsg.getSubTransMode();
+				if(tmpMode == 0) {	tmpMode = EqClient.transMode;	}
+				respMsg = "切换到"+ParseUtil.parseTransMode(tmpMode);
+				client.updateUI(Constant.UICODE_MODE, ParseUtil.parseTransMode(tmpMode));
 			}
 				break;
 			case MsgConstant.CMD_PERIODDATA:

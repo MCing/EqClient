@@ -3,15 +3,14 @@ package com.eqcli.util;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import com.eqcli.application.EqClient;
+
 public class ParseUtil {
 
 	
 	/** 根据传输模式id 获取模式字符串 */
 	public static String parseTransMode(short mode) {
 
-		if(mode == 0){
-			
-		}
 		return Constant.TRANSMODE[mode];
 	}
 	

@@ -28,8 +28,8 @@ public class DataBuilder {
 		RegReq regMsg = new RegReq();
 		regMsg.setAuthenCode(EqConfig.authenCode);
 		regMsg.setAltitude(EqConfig.altitude);
-		regMsg.setLatitude(EqConfig.latitude);
-		regMsg.setLongitude(EqConfig.longitude);
+		regMsg.setLatitude(Math.round(EqConfig.latitude*100000));
+		regMsg.setLongitude(Math.round(EqConfig.longitude*100000));
 		regMsg.setSensitivity(EqConfig.sensitivity);
 		regMsg.setTransMode(EqClient.transMode);
 		regMsg.setTriggerThreshold(EqConfig.triggerThreshold);

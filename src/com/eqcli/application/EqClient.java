@@ -282,7 +282,7 @@ public class EqClient extends Application {
 		}
 		boolean isTurnOn = false;
 		if (dataCreatorFuture == null) {
-			dataCreatorFuture = executor.scheduleAtFixedRate(new DataCreatorTask(), 1000, 1000, TimeUnit.MILLISECONDS);
+			dataCreatorFuture = executor.scheduleAtFixedRate(new DataCreatorTask(), 1000, 500, TimeUnit.MILLISECONDS);
 			isTurnOn = true;
 		} else {
 			dataCreatorFuture.cancel(true);

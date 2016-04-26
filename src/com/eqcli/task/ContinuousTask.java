@@ -15,16 +15,17 @@ import com.eqsys.msg.data.WavefData;
 
 /** 连续传输模式 */
 public class ContinuousTask extends TransTask {
-	
+
 	private Logger log = Logger.getLogger(ContinuousTask.class);
 
 	/** 发送队列 */
 	private static LinkedList<WavefData> sendQueue;
-	private int queueCapacity = 20;   //容量
+	private int queueCapacity = 20; // 容量
 	private WavefDataDao dao;
 	private int lastSendedId = 0;
 
 	private int tmp;
+
 	public ContinuousTask(ChannelHandlerContext _ctx, int packetid) {
 
 		dao = new WavefDataDao();
@@ -44,56 +45,47 @@ public class ContinuousTask extends TransTask {
 		if (context == null) {
 			return;
 		}
-			try {
-				// 发送队列大小小于队列阈值时(5),从数据库中获取
-				if (sendQueue.size() < 5) {
-					int startid = 0;
-					if (sendQueue.isEmpty()) {
+		try {
+			// 发送队列大小小于队列阈值时(5),从数据库中获取
+			if (sendQueue.size() < 5) {
+				int startid = 0;
+				if (sendQueue.isEmpty()) {
 						
-						startid = lastSendedId == 0 ? 0 : lastSendedId + 1;
-					} else {
-						startid = sendQueue.getLast().getId() + 1;
-						
-					}
-					Reloading(startid, queueCapacity - 2);
+//					System.err.println("lastSendedId:"+lastSendedId);
+					startid = lastSendedId == 0 ? 0 : lastSendedId + 1;
+				} else {
+					startid = sendQueue.getLast().getId() + 1;
+
 				}
-				if (!sendQueue.isEmpty()) {
-					// 将队列中的第一个数据对象发送出去
-					send();
-				}else{
-					log.error("发送队列为空");
-				}
-			} catch(Exception e){
-				log.error("连续传输模式错误:"+e.getMessage());
+				Reloading(startid, queueCapacity - 2);
 			}
+			if (!sendQueue.isEmpty()) {
+				// 将队列中的第一个数据对象发送出去
+				send();
+			} else {
+				log.error("无数据发送");
+			}
+		} catch (Exception e) {
+			log.error("连续传输模式错误:" + e.getMessage());
 		}
+	}
 
 	/** 向发送队列中加载数据 */
 	private void Reloading(int start, int count) {
-		//test
-//		context.executor().schedule(new Runnable(){
-//
-//			@Override
-//			public void run() {
-				
-				List list = dao.get(start, count);
-				sendQueue.addAll(list);
-//				log.error("reloading:"+list.size());
-//			}
-//			
-//		}, 0, TimeUnit.MILLISECONDS);
-//		long startTime = System.currentTimeMillis();
-//		List list = dao.get(start, count);
-//		sendQueue.addAll(list);
-//		log.error("reloading:"+list.size()+" using:"+(System.currentTimeMillis() - startTime));
+
+		List<WavefData> list = dao.get(start, count);
+//		for(WavefData data : list){
+//			System.err.println("reload:"+data.getId());
+//		}
+		sendQueue.addAll(list);
 	}
 
 	/** 发送到服务端 */
 	private void send() {
-		
+
 		WavefData data = sendQueue.removeFirst();
 		lastSendedId = data.getId();
-		log.info("发送波形数据:"+lastSendedId);
+		log.info("发送波形数据:" + lastSendedId);
 		context.writeAndFlush(DataBuilder.buildWavefDataMsg(MsgConstant.TYPE_WC, data));
 	}
 }

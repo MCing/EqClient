@@ -88,7 +88,7 @@ public class WavefDataDao extends BaseDao<WavefData> {
 	 * @param count  数量
 	 */
 	public List<WavefData> get(int start, int count) {
-		String sql = "select * from " + mTableName + " limit ?,?;";
+		String sql = "select * from " + mTableName + " where id>=? limit ?;";
 		List<WavefData> list = new ArrayList<WavefData>();
 		PreparedStatement preStat = null;
 		Connection conn = null;
@@ -98,8 +98,8 @@ public class WavefDataDao extends BaseDao<WavefData> {
 			preStat.setInt(1, start);
 			preStat.setInt(2, count);
 			ResultSet result = preStat.executeQuery();
+			WavefData data = new WavefData();
 			while(result.next()){
-				WavefData data = new WavefData();
 				data.setId(result.getInt("id"));
 				data.setQuality(result.getString("qid"));
 				data.setLocId(result.getString("localid"));   //2Bytes

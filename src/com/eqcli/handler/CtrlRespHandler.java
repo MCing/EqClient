@@ -136,7 +136,7 @@ public class CtrlRespHandler extends ChannelHandlerAdapter {
 				transTask.cancel(true);
 			}
 			transTask = ctx.executor().scheduleAtFixedRate(new ContinuousTask(ctx,
-					lastPacketId), 10, 500, TimeUnit.MILLISECONDS);
+					lastPacketId), 500, 500, TimeUnit.MILLISECONDS);
 			break;
 		case Constant.MODE_TRG_WAVE:
 			if(transTask != null && transTask.isCancelled()){

@@ -1,9 +1,8 @@
 package com.eqcli.simulation;
 
-import java.util.concurrent.TimeUnit;
-
 import com.eqcli.dao.WavefDataDao;
 import com.eqcli.util.DataBuilder;
+import com.eqcli.util.JDBCHelper;
 
 /**
  * 模拟波形数据产生任务 按照一定频率产生数据,并存入数据库
@@ -12,8 +11,10 @@ import com.eqcli.util.DataBuilder;
 public class DataCreatorTask implements Runnable {
 
 	private WavefDataDao dao;
-	private int packetid;
-	private int speed = 200;   //数据产生速率(单位ms)
+	private int packetid = -1;
+	// private int speed = 200; //数据产生速率(单位ms)
+	// 数据条目计数器
+	private static int counter;
 
 	public DataCreatorTask() {
 		dao = new WavefDataDao();
@@ -22,19 +23,16 @@ public class DataCreatorTask implements Runnable {
 
 	@Override
 	public void run() {
-		while (true) {
-			try {
-				TimeUnit.MILLISECONDS.sleep(speed);   //产生速率 1秒
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			dao.save(DataBuilder.buildWavefData(packetid++));
-		}
+		dao.save(DataBuilder.buildWavefData(++packetid));
+		counter++;
 	}
-	
-	private int getPacketId(){
-		
+
+	private int getPacketId() {
+
 		return dao.getLastId();
 	}
 
+	public static int getCount() {
+		return counter;
+	}
 }

@@ -17,8 +17,17 @@ public class JDBCHelper {
 
 	private static MiniConnectionPoolManager poolMgr;
 
-	public static void initDB() {
+	private static boolean dbState;
 
+	/**
+	 * 初始化数据库连接池
+	 * @return	true:数据库连接成功  否则false
+	 */
+	public static boolean initDB() {
+
+		if(testConnection()){
+			return true;
+		}
 		// 使用连接池,数据源
 		MysqlConnectionPoolDataSource ds = new MysqlConnectionPoolDataSource();
 
@@ -30,14 +39,28 @@ public class JDBCHelper {
 
 		poolMgr = new MiniConnectionPoolManager(ds, connectionPoolCapacity);
 
-		testPrepareDb();
-
+		
+		if (testConnection()) {
+			log.error("数据库开启");
+			testPrepareDb();
+		}
+		return dbState;
+	}
+	
+	/**
+	 * 测试数据库连接状态
+	 * @return	true:已连接   false:未连接
+	 */
+	private static boolean testConnection(){
+		
 		try {
 			Connection testConn = poolMgr.getConnection();
 			testConn.close();
+			dbState = true;
 		} catch (Exception e) {
-			log.error("数据库配置错误:" + e.getMessage());
+			dbState = false;
 		}
+		return dbState;
 	}
 
 	/**
@@ -52,6 +75,7 @@ public class JDBCHelper {
 			conn = poolMgr.getConnection();
 		} catch (SQLException e) {
 			log.error("数据库异常:" + e.getMessage());
+			e.printStackTrace();
 		}
 		return conn;
 	}
@@ -70,6 +94,7 @@ public class JDBCHelper {
 			}
 		} catch (SQLException e) {
 			log.error("数据库异常:" + e.getMessage());
+			e.printStackTrace();
 		}
 	}
 
@@ -83,7 +108,8 @@ public class JDBCHelper {
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			log.error("数据库连接池关闭异常:"+e.getMessage());
+			log.error("数据库连接池关闭异常:" + e.getMessage());
+			e.printStackTrace();
 		}
 	}
 
@@ -123,32 +149,24 @@ public class JDBCHelper {
 			e.printStackTrace();
 		}
 	}
+	
+	public static boolean getDbState(){
+		
+		return dbState;
+	}
 
-	private static String createTableSql = "CREATE TABLE `wavefdata_t` ("
-			+ "  `id` int(11) NOT NULL,"
-			+ "  `qid` char(1) NOT NULL DEFAULT 'D',"
-			+ "  `hreserve` tinyint(1) unsigned DEFAULT NULL,"
-			+ "`localid` char(2) NOT NULL," + "`channid` char(2) NOT NULL,"
-			+ "`starttime` bigint(20) NOT NULL,"
-			+ "`samcount` smallint(6) NOT NULL,"
-			+ "`samfactor` smallint(6) NOT NULL,"
-			+ "`sammul` smallint(6) NOT NULL,"
-			+ "`actid` tinyint(4) unsigned NOT NULL,"
-			+ "`iocflag` tinyint(4) unsigned NOT NULL,"
-			+ "`dataqflag` tinyint(4) unsigned NOT NULL,"
-			+ "`blockcount` tinyint(4) unsigned NOT NULL,"
-			+ "`timecorr` int(11) NOT NULL,"
-			+ "`dataoffs` smallint(6) NOT NULL,"
-			+ " `subblockoffs` smallint(6) NOT NULL,"
-			+ " `subheadtype` smallint(6) NOT NULL,"
-			+ " `nextblockid` smallint(6) NOT NULL,"
-			+ "  `codeformat` tinyint(4) NOT NULL,"
-			+ " `byteorder` tinyint(4) unsigned NOT NULL,"
-			+ " `datalen` tinyint(4) unsigned NOT NULL,"
-			+ " `subhreserve` tinyint(4) unsigned DEFAULT NULL,"
-			+ " `subblocktype` smallint(6) NOT NULL,"
-			+ " `dimension` tinyint(1) unsigned NOT NULL,"
-			+ " `subbreserve` char(1) DEFAULT NULL,"
-			+ "  `sensfactor` int(11) NOT NULL,"
+	private static String createTableSql = "CREATE TABLE `wavefdata_t` (" + "  `id` int(11) NOT NULL,"
+			+ "  `qid` char(1) NOT NULL DEFAULT 'D'," + "  `hreserve` tinyint(1) unsigned DEFAULT NULL,"
+			+ "`localid` char(2) NOT NULL," + "`channid` char(2) NOT NULL," + "`starttime` bigint(20) NOT NULL,"
+			+ "`samcount` smallint(6) NOT NULL," + "`samfactor` smallint(6) NOT NULL,"
+			+ "`sammul` smallint(6) NOT NULL," + "`actid` tinyint(4) unsigned NOT NULL,"
+			+ "`iocflag` tinyint(4) unsigned NOT NULL," + "`dataqflag` tinyint(4) unsigned NOT NULL,"
+			+ "`blockcount` tinyint(4) unsigned NOT NULL," + "`timecorr` int(11) NOT NULL,"
+			+ "`dataoffs` smallint(6) NOT NULL," + " `subblockoffs` smallint(6) NOT NULL,"
+			+ " `subheadtype` smallint(6) NOT NULL," + " `nextblockid` smallint(6) NOT NULL,"
+			+ "  `codeformat` tinyint(4) NOT NULL," + " `byteorder` tinyint(4) unsigned NOT NULL,"
+			+ " `datalen` tinyint(4) unsigned NOT NULL," + " `subhreserve` tinyint(4) unsigned DEFAULT NULL,"
+			+ " `subblocktype` smallint(6) NOT NULL," + " `dimension` tinyint(1) unsigned NOT NULL,"
+			+ " `subbreserve` char(1) DEFAULT NULL," + "  `sensfactor` int(11) NOT NULL,"
 			+ " `datablock` tinyblob NOT NULL," + "  PRIMARY KEY (`id`)" + ");";
 }

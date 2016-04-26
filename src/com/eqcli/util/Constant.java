@@ -1,13 +1,13 @@
 package com.eqcli.util;
 
-import java.util.Random;
-
 public class Constant {
 	
 	//更新UI类型码
-	public static final short UICODE_STATE = 1;
-	public static final short UICODE_MODE = 2;
-	public static final short UICODE_THREHOLD = 3;
+	public static final short UICODE_STATE = 1;		//与台网连接状态
+	public static final short UICODE_MODE = 2;		//传输模式
+	public static final short UICODE_THREHOLD = 3;	//触发阈值
+	public static final short UICODE_DBSTATE = 4;	//数据库连接状态
+	public static final short UICODE_DATACREATOR = 5;	//模拟数据发生器状态
 	
 	//三种传输模式
 	public static final short MODE_IDLE = -1;

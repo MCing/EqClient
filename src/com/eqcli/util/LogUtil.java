@@ -18,7 +18,7 @@ public class LogUtil {
 		
 //		使用代码配置,为了调试多个客户端,这里用代码配置,以配置不同的日志输出路径
 		Properties prop = new Properties();
-		prop.setProperty("log4j.rootLogger", "DEBUG, ServerDailyRollingFile,CONSOLE");
+		prop.setProperty("log4j.rootLogger", "INFO, ServerDailyRollingFile,CONSOLE");
 		prop.setProperty("log4j.appender.CONSOLE", "org.apache.log4j.ConsoleAppender");
 		prop.setProperty("log4j.appender.CONSOLE.layout", "org.apache.log4j.PatternLayout");
 		prop.setProperty("log4j.appender.CONSOLE.layout.ConversionPattern", "%d{HH:mm:ss,SSS} [%t] %-5p %C{1} : %m%n");

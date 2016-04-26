@@ -20,6 +20,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import javafx.application.Application;
@@ -109,8 +110,7 @@ public class EqClient extends Application {
 		initNetty();
 		JDBCHelper.initDB();
 		initView(primaryStage);
-		// 模拟数据发生器
-		executor.execute(new DataCreatorTask());
+		
 	}
 
 	/** 初始化界面 */
@@ -248,14 +248,37 @@ public class EqClient extends Application {
 	 * @param value			更新值
 	 */
 	public void updateUI(final int updatecode, final Object value){
-		//_nofinish 更新数据（阈值/模式）到配置文件
-		
 		Platform.runLater(new Runnable() {
 	        @Override
 	        public void run() {
 	        	controller.update(updatecode, value);
 	        }
 	   });
+	}
+
+	private ScheduledFuture dataCreatorFuture;
+	/** 打开关闭模拟波形数据发生器 
+	 * 该功能依赖于数据库，若数据库未启动则开启失败
+	 *  
+	 *  
+	 */
+	public void toggleDataCreator(){
+		
+		if(!JDBCHelper.getDbState()){
+			log.error("数据库未启动，无法开启数据发生器！！");
+			return;
+		}
+		boolean isTurnOn = false;
+		if(dataCreatorFuture == null){
+			dataCreatorFuture = executor.scheduleAtFixedRate(new DataCreatorTask(), 1000, 1000, TimeUnit.MILLISECONDS);
+			isTurnOn = true;
+		}else{
+			dataCreatorFuture.cancel(true);
+			dataCreatorFuture = null;
+			isTurnOn = false;
+		}
+		
+		updateUI(Constant.UICODE_DATACREATOR, isTurnOn);
 	}
 	
 }

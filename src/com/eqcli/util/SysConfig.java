@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Date;
 import java.util.Properties;
+import java.util.Random;
 
 import org.apache.log4j.Logger;
 
@@ -54,6 +55,17 @@ public class SysConfig {
 			//网络参数配置
 			authenCode = prop.getProperty("AUTHEN_CODE", "");
 			serverId = prop.getProperty("SERVER_ID", "TT");
+			
+			//台站配置信息
+			Random random = new Random();
+			EqConfig.stdId =  prop.getProperty("STATION_ID",String.format("%05d", new Random().nextInt(99999)));				//烈度仪代号
+			EqConfig.longitude =  Float.valueOf( prop.getProperty("LONGITUDE",String.valueOf(((float)random.nextInt(300)*100000)/100000)));				//经度 度＊100000
+			EqConfig.latitude =  Float.valueOf(prop.getProperty("LATITUDE",String.valueOf(((float)random.nextInt(300)*100000)/100000)));				//纬度 度＊100000
+			EqConfig.altitude =  Short.valueOf(prop.getProperty("ALTITUDE",String.valueOf(random.nextInt(200))));				//高程 单位M
+			EqConfig.sensitivity =  Integer.valueOf(prop.getProperty("SENSITIVITY",String.valueOf(random.nextInt(1000))));			//灵敏度
+			EqConfig.transMode =  Short.valueOf(prop.getProperty("TRANSMODE",String.valueOf(Constant.MODE_CONTINUOUS)));			//传输模式  1:连续传输模式  2:为触发传输传波形  3:触发传输不传波形
+			EqConfig.triggerThreshold =  Short.valueOf(prop.getProperty("THRESHOLD",String.valueOf(random.nextInt(200))));		//触发阀值
+			
 			
 		}else{
 			log.error("配置文件读取失败!");

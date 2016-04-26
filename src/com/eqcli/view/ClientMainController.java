@@ -86,11 +86,11 @@ public class ClientMainController {
 	/** 初始化主页 tab */
 	private void initMainTab(){
 		stdIdLabel.setText(EqConfig.stdId);
-		modeLabel.setText(ParseUtil.parseTransMode(EqConfig.transMode)); 
+		modeLabel.setText(ParseUtil.parseTransMode(EqConfig.transMode));
 		threshHoldLabel.setText(String.valueOf(EqConfig.triggerThreshold));
 		stateLabel.setTextFill(Color.RED);
 		stateLabel.setText("未连接");
-		srvIdLabel.setText(EqConfig.defaultSrv);
+		srvIdLabel.setText(SysConfig.getServerId());
 		longitudeLabel.setText(String.valueOf(EqConfig.longitude));
 		latitudeLabel.setText(String.valueOf(EqConfig.latitude));
 		altitudeLabel.setText(String.valueOf(EqConfig.altitude));
@@ -107,8 +107,6 @@ public class ClientMainController {
 		creatorCounter.setText(String.valueOf(DataCreatorTask.getCount()));
 		creatorStateLabel.setTextFill(Color.RED);
 		creatorStateLabel.setText("未启用");
-		initDbTab();
-		
 	}
 	
 	/** 初始化数据库管理Tab */

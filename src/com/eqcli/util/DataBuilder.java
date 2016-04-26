@@ -22,11 +22,11 @@ public class DataBuilder {
 		EqMessage msg = new EqMessage();
 		Header header = new Header();
 		header.setMsgType(MsgConstant.TYPE_RE);
-		header.setServerId(EqConfig.defaultSrv);
+		header.setServerId(SysConfig.getServerId());
 		header.setStationId(EqConfig.stdId);
 		header.setPid(random.nextInt(100)); // 包序号随机产生
 		RegReq regMsg = new RegReq();
-		regMsg.setAuthenCode(EqConfig.authenCode);
+		regMsg.setAuthenCode(SysConfig.getAuthenCode());
 		regMsg.setAltitude(EqConfig.altitude);
 		regMsg.setLatitude(Math.round(EqConfig.latitude*100000));
 		regMsg.setLongitude(Math.round(EqConfig.longitude*100000));
@@ -48,7 +48,7 @@ public class DataBuilder {
 		EqMessage msg = new EqMessage();
 		Header header = new Header();
 		header.setMsgType(MsgConstant.TYPE_CR);
-		header.setServerId(EqConfig.defaultSrv);
+		header.setServerId(SysConfig.getServerId());
 		header.setStationId(EqConfig.stdId);
 		header.setPid(id);
 		CommandResp ccRMsg = new CommandResp();
@@ -124,7 +124,7 @@ public class DataBuilder {
 		Header header = new Header();
 		header.setMsgType(MsgConstant.TYPE_SI);
 		header.setPid(id);
-		header.setServerId(EqConfig.defaultSrv);
+		header.setServerId(SysConfig.getServerId());
 		header.setStationId(EqConfig.stdId);
 
 		msg.setHeader(header);
@@ -139,7 +139,7 @@ public class DataBuilder {
 
 		Header header = new Header();
 		header.setMsgType(type);
-		header.setServerId(EqConfig.defaultSrv);
+		header.setServerId(SysConfig.getServerId());
 		header.setStationId(EqConfig.stdId);
 		header.setPid(data.getId());
 		msg.setHeader(header);
@@ -191,7 +191,7 @@ public class DataBuilder {
 		Header header = new Header();
 		header.setMsgType(MsgConstant.TYPE_TI);
 		header.setPid(triggerData.getId());
-		header.setServerId(EqConfig.defaultSrv);
+		header.setServerId(SysConfig.getServerId());
 		header.setStationId(EqConfig.stdId);
 
 		msg.setHeader(header);

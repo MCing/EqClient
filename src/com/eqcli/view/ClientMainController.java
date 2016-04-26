@@ -107,20 +107,23 @@ public class ClientMainController {
 		creatorCounter.setText(String.valueOf(DataCreatorTask.getCount()));
 		creatorStateLabel.setTextFill(Color.RED);
 		creatorStateLabel.setText("未启用");
+		initDbTab();
 		
 	}
 	
 	/** 初始化数据库管理Tab */
 	private void initDbTab(){
-		
+		dbServer.setText(SysConfig.getJdbcServerName());
+		dbUser.setText(SysConfig.getJdbcUser());
+		dbPasswd.setText(SysConfig.getJdbcPasswd());
 	}
 	/** 初始化连接配置Tab */
 	private void initConfigTab(){
 		
 		ipTf.setText(SysConfig.getServerIp());
 		portTf.setText(String.valueOf(SysConfig.getServerPort()));
-		codeTf.setText(EqConfig.authenCode);
-		srvIdTf.setText(EqConfig.defaultSrv);
+		codeTf.setText(SysConfig.getAuthenCode());
+		srvIdTf.setText(SysConfig.getServerId());
 	}
 	
 	@FXML
@@ -137,19 +140,31 @@ public class ClientMainController {
 	/** 保存台网服务器配置 */
 	@FXML
 	private void handleServerSave(){
+		String srvIp = ipTf.getText(); 
+		String port = portTf.getText();
+		String srvId = srvIdTf.getText();
+		String code = codeTf.getText();
+		
+		//if valid
+		SysConfig.saveServerConfig(srvIp, port, srvId, code);
 	}
 	
 	@FXML
 	private void handleServerReset(){
-		
+		initConfigTab();
 	}
 	@FXML
 	private void handleDbSave(){
+		String serverName = dbServer.getText();
+		String userName = dbUser.getText();
+		String password = dbPasswd.getText();
 		
+		//if valid
+		SysConfig.saveDbConfig(serverName, userName, password);
 	}
 	@FXML
 	private void handleDbReset(){
-		
+		initDbTab();
 	}
 	
 	/** 连接数据库 */

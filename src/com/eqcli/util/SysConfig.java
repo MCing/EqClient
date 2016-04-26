@@ -1,8 +1,11 @@
 package com.eqcli.util;
 
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Date;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -23,10 +26,16 @@ public class SysConfig {
 	private static String jdbcDb;
 	private static int jdbcPort;
 	private static String jdbcServerName;
+	
+	//台网配置
+	private static String authenCode;
+	private static String serverId;
 
 	//网络参数配置
 	private static String serverIp;
 	private static int serverPort;
+	
+	public static final String CONFIG_PATH = System.getProperty("user.dir") + "/config.properties";
 
 	/** 预配置,读取文件,设置相应参数值 */
 	public static void preConfig(){
@@ -41,7 +50,10 @@ public class SysConfig {
 			//服务器配置
 			serverIp = prop.getProperty("SERVER_IP", "localhost");
 			serverPort = Integer.valueOf(prop.getProperty("SERVER_PORT", "3306"));
-			//系统信息配置
+			
+			//网络参数配置
+			authenCode = prop.getProperty("AUTHEN_CODE", "");
+			serverId = prop.getProperty("SERVER_ID", "TT");
 			
 		}else{
 			log.error("配置文件读取失败!");
@@ -49,15 +61,30 @@ public class SysConfig {
 		
 	}
 	
+	public static String getAuthenCode() {
+		return authenCode;
+	}
+
+	public static void setAuthenCode(String authenCode) {
+		SysConfig.authenCode = authenCode;
+	}
+
+	public static String getServerId() {
+		return serverId;
+	}
+
+	public static void setServerId(String serverId) {
+		SysConfig.serverId = serverId;
+	}
+
 	/** 通过配置文件读取配置 */
 	private static Properties getPropertiesFromFile(){
 		
 		Properties prop = new Properties();
 		
 		//根据工程路径找到配置文件(目前配置文件放在工程根路径下)
-		String workDir = System.getProperty("user.dir");
 		try{
-			InputStream inputStream = new FileInputStream(workDir+"/config.properties");
+			InputStream inputStream = new FileInputStream(CONFIG_PATH);
 			prop.load(inputStream);
 		}catch(IOException e){
 			e.printStackTrace();
@@ -65,6 +92,49 @@ public class SysConfig {
 		}
 		return prop;
 	}
+	
+	/** 保存Properties对象到配置文件 */
+	private static void saveProperty(Properties prop){
+		try {
+			OutputStream out = new FileOutputStream(CONFIG_PATH);
+			prop.store(out, new Date().toString());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	/** 保存新的数据库配置到配置文件 */
+	public static void saveDbConfig(String serverName, String userName, String password){
+		Properties pro = getPropertiesFromFile();
+		
+		jdbcUser = userName;
+		jdbcPasswd = password;
+		jdbcServerName = serverName;
+		
+		pro.put("JDBC_SERVERNAME", serverName);
+		pro.put("JDBC_USER", userName);
+		pro.put("JDBC_PASSWORD", password);
+		
+		saveProperty(pro);
+	}
+	
+	/** 保存新的台网服务器配置到文件  */
+	public static void saveServerConfig(String srvIp, String port, String srvId, String code){
+		authenCode = code;
+		serverId = srvId;
+		serverIp = srvIp;
+		serverPort = Integer.valueOf(port);
+		Properties pro = getPropertiesFromFile();
+		pro.put("SERVER_IP", serverIp);
+		pro.put("SERVER_PORT", port);
+		pro.put("SERVER_ID", serverId);
+		pro.put("AUTHEN_CODE", authenCode);
+		saveProperty(pro);
+	}
+	
+	
+	
 	
 	public static String getJdbcUser() {
 		return jdbcUser;

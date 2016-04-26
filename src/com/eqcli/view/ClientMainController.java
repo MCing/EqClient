@@ -1,7 +1,9 @@
 package com.eqcli.view;
 
 
+
 import com.eqcli.application.EqClient;
+import com.eqcli.application.LogEvent;
 import com.eqcli.simulation.DataCreatorTask;
 import com.eqcli.util.Constant;
 import com.eqcli.util.EqConfig;
@@ -13,7 +15,10 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Color;
 
 public class ClientMainController {
@@ -77,11 +82,27 @@ public class ClientMainController {
 	@FXML
 	private Button creatorUpdate;
 	
+	//日志
+	@FXML
+	private TableView<LogEvent> logArea;
+	@FXML
+	private TableColumn<LogEvent, String> logTime;
+	@FXML
+	private TableColumn<LogEvent, String> logEvent;
+	
 	@FXML
 	private void initialize() {
 		initMainTab();
 		initDbTab();
 		initConfigTab();
+		logTime
+		.setCellValueFactory(new PropertyValueFactory<LogEvent, String>(
+				"time"));
+		logEvent
+		.setCellValueFactory(new PropertyValueFactory<LogEvent, String>(
+				"event"));
+
+		logArea.setItems(EqClient.logList);
 	}
 	/** 初始化主页 tab */
 	private void initMainTab(){

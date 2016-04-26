@@ -8,6 +8,7 @@ public class Constant {
 	public static final short UICODE_THREHOLD = 3;	//触发阈值
 	public static final short UICODE_DBSTATE = 4;	//数据库连接状态
 	public static final short UICODE_DATACREATOR = 5;	//模拟数据发生器状态
+	public static final short UICODE_LOG = 6; 			//日志
 	
 	//三种传输模式
 	public static final short MODE_IDLE = -1;
@@ -17,6 +18,7 @@ public class Constant {
 	
 	/* 传输模式  */
 	public static final String TRANSMODE[] = {null, "连续波形传输", "触发传波形", "触发不传波形"};
+	
 	
 	
 

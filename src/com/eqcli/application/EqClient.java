@@ -1,5 +1,25 @@
 package com.eqcli.application;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.log4j.Logger;
+
+import com.eqcli.handler.CtrlRespHandler;
+import com.eqcli.handler.RegReqHandler;
+import com.eqcli.simulation.DataCreatorTask;
+import com.eqcli.util.Constant;
+import com.eqcli.util.JDBCHelper;
+import com.eqcli.util.LogUtil;
+import com.eqcli.util.ParseUtil;
+import com.eqcli.util.SysConfig;
+import com.eqcli.view.ClientMainController;
+
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -14,18 +34,10 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
-
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -33,30 +45,19 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
-import org.apache.log4j.Logger;
-
-import com.eqcli.handler.CtrlRespHandler;
-import com.eqcli.handler.RegReqHandler;
-import com.eqcli.simulation.DataCreatorTask;
-import com.eqcli.util.Constant;
-import com.eqcli.util.JDBCHelper;
-import com.eqcli.util.LogUtil;
-import com.eqcli.util.ParseUtil;
-import com.eqcli.util.SysConfig;
-import com.eqcli.view.ClientMainController;
-import com.eqsys.msg.MsgConstant;
-
 public class EqClient extends Application {
 
 	private Logger log = Logger.getLogger(EqClient.class);
-	
+
 	private String mainPagePath = "/com/eqcli/view/ClientMainLayout.fxml";
 	private String iconPath = "/com/eqcli/view/images/icon.png";
 
 	private ClientMainController controller;
 	private boolean isConnected = false; // tcp链路连接标志
-	
+
 	private Channel channel;
+	
+	public static ObservableList<LogEvent> logList = FXCollections.observableArrayList();
 
 	// 全局传输模式
 	public static volatile short transMode = Constant.MODE_CONTINUOUS;
@@ -64,8 +65,7 @@ public class EqClient extends Application {
 	// netty 对象
 	private Bootstrap bootstrap;
 	private EventLoopGroup group;
-	private ScheduledExecutorService executor = Executors
-			.newScheduledThreadPool(2);
+	private ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
 
 	/**
 	 * 程序入口
@@ -81,8 +81,7 @@ public class EqClient extends Application {
 
 		group = new NioEventLoopGroup();
 		bootstrap = new Bootstrap();
-		bootstrap.group(group).channel(NioSocketChannel.class)
-				.option(ChannelOption.TCP_NODELAY, true)
+		bootstrap.group(group).channel(NioSocketChannel.class).option(ChannelOption.TCP_NODELAY, true)
 				.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000) // 连接超时
 				.handler(new ChannelHandlers());
 	}
@@ -100,17 +99,27 @@ public class EqClient extends Application {
 		}
 	}
 
-	/** 全局初始化 
+	/**
+	 * 全局初始化
+	 * 
 	 * @param primaryStage
-	  */
+	 */
 	private void globalInit(Stage primaryStage) {
 
 		LogUtil.initLog();
 		SysConfig.preConfig();
 		initNetty();
-		JDBCHelper.initDB();
+
 		initView(primaryStage);
-		
+		if (!JDBCHelper.initDB()) {
+			LogEvent logMsg = new LogEvent();
+			SimpleDateFormat format = new SimpleDateFormat("yy/MM/dd HH:mm:ss");
+			logMsg.setTime(format.format(new Date()));
+			logMsg.setEvent("数据库连接失败");
+			
+			logList.add(logMsg);
+		}
+
 	}
 
 	/** 初始化界面 */
@@ -136,7 +145,7 @@ public class EqClient extends Application {
 			controller = loader.getController();
 			controller.setMainApp(EqClient.this);
 		} catch (IOException e) {
-			log.error("页面加载失败:"+e.getMessage());
+			log.error("页面加载失败:" + e.getMessage());
 		}
 		return page;
 	}
@@ -163,9 +172,8 @@ public class EqClient extends Application {
 		protected void initChannel(SocketChannel ch) throws Exception {
 
 			ChannelPipeline pipeline = ch.pipeline();
-			ch.pipeline().addLast(
-					new ObjectDecoder(1024, ClassResolvers.cacheDisabled(this
-							.getClass().getClassLoader())));
+			ch.pipeline()
+					.addLast(new ObjectDecoder(1024, ClassResolvers.cacheDisabled(this.getClass().getClassLoader())));
 			ch.pipeline().addLast(new ObjectEncoder());
 			pipeline.addLast(new RegReqHandler(EqClient.this));
 			pipeline.addLast(new CtrlRespHandler(EqClient.this));
@@ -179,19 +187,19 @@ public class EqClient extends Application {
 	public void connectToHost() {
 
 		// 启动连接线程
-		if(channel == null || !channel.isActive()){
+		if (channel == null || !channel.isActive()) {
 			executor.execute(new ConnectTask());
 		}
 	}
-	
-	//_test 断开连接接口
-	public void disconnect(){
-		
-		if(channel != null && channel.isActive()){
+
+	// _test 断开连接接口
+	public void disconnect() {
+
+		if (channel != null && channel.isActive()) {
 			channel.close();
 			isConnected = false;
 		}
-		
+
 	}
 
 	/**
@@ -205,8 +213,7 @@ public class EqClient extends Application {
 			ChannelFuture f = null;
 			while (!isConnected && !executor.isShutdown()) {
 				try {
-					f = bootstrap.connect(SysConfig.getServerIp(),
-							SysConfig.getServerPort()).sync();
+					f = bootstrap.connect(SysConfig.getServerIp(), SysConfig.getServerPort()).sync();
 					if (f.isSuccess()) {
 						channel = f.channel();
 						isConnected = true;
@@ -242,43 +249,48 @@ public class EqClient extends Application {
 		isConnected = false;
 		connectToHost();
 	}
-	
-	/** 更新UI接口
-	 * @param updatecode	更新类型码
-	 * @param value			更新值
+
+	/**
+	 * 更新UI接口
+	 * 
+	 * @param updatecode
+	 *            更新类型码
+	 * @param value
+	 *            更新值
 	 */
-	public void updateUI(final int updatecode, final Object value){
+	public void updateUI(final int updatecode, final Object value) {
 		Platform.runLater(new Runnable() {
-	        @Override
-	        public void run() {
-	        	controller.update(updatecode, value);
-	        }
-	   });
+			@Override
+			public void run() {
+				controller.update(updatecode, value);
+			}
+		});
 	}
 
 	private ScheduledFuture dataCreatorFuture;
-	/** 打开关闭模拟波形数据发生器 
-	 * 该功能依赖于数据库，若数据库未启动则开启失败
-	 *  
-	 *  
+
+	/**
+	 * 打开关闭模拟波形数据发生器 该功能依赖于数据库，若数据库未启动则开启失败
+	 * 
+	 * 
 	 */
-	public void toggleDataCreator(){
-		
-		if(!JDBCHelper.getDbState()){
+	public void toggleDataCreator() {
+
+		if (!JDBCHelper.getDbState()) {
 			log.error("数据库未启动，无法开启数据发生器！！");
 			return;
 		}
 		boolean isTurnOn = false;
-		if(dataCreatorFuture == null){
+		if (dataCreatorFuture == null) {
 			dataCreatorFuture = executor.scheduleAtFixedRate(new DataCreatorTask(), 1000, 1000, TimeUnit.MILLISECONDS);
 			isTurnOn = true;
-		}else{
+		} else {
 			dataCreatorFuture.cancel(true);
 			dataCreatorFuture = null;
 			isTurnOn = false;
 		}
-		
+
 		updateUI(Constant.UICODE_DATACREATOR, isTurnOn);
 	}
-	
+
 }

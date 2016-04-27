@@ -13,11 +13,13 @@ import org.apache.log4j.Logger;
 import com.eqcli.handler.CtrlRespHandler;
 import com.eqcli.handler.RegReqHandler;
 import com.eqcli.simulation.DataCreatorTask;
+import com.eqcli.simulation.DataReport;
 import com.eqcli.util.Constant;
 import com.eqcli.util.JDBCHelper;
 import com.eqcli.util.LogUtil;
 import com.eqcli.util.ParseUtil;
 import com.eqcli.util.SysConfig;
+import com.eqcli.util.UTCTimeUtil;
 import com.eqcli.view.ClientMainController;
 
 import io.netty.bootstrap.Bootstrap;
@@ -58,6 +60,7 @@ public class EqClient extends Application {
 	private Channel channel;
 	
 	public static ObservableList<LogEvent> logList = FXCollections.observableArrayList();
+	public static ObservableList<DataReport> dataList = FXCollections.observableArrayList();
 
 	// 全局传输模式
 	public static volatile short transMode = Constant.MODE_CONTINUOUS;
@@ -109,17 +112,8 @@ public class EqClient extends Application {
 		LogUtil.initLog();
 		SysConfig.preConfig();
 		initNetty();
-
+		JDBCHelper.initDB();   //需在初始化界面前初始化数据库
 		initView(primaryStage);
-		if (!JDBCHelper.initDB()) {
-			LogEvent logMsg = new LogEvent();
-			SimpleDateFormat format = new SimpleDateFormat("yy/MM/dd HH:mm:ss");
-			logMsg.setTime(format.format(new Date()));
-			logMsg.setEvent("数据库连接失败");
-			
-			logList.add(logMsg);
-		}
-
 	}
 
 	/** 初始化界面 */
@@ -268,10 +262,8 @@ public class EqClient extends Application {
 	}
 
 	private ScheduledFuture dataCreatorFuture;
-
 	/**
 	 * 打开关闭模拟波形数据发生器 该功能依赖于数据库，若数据库未启动则开启失败
-	 * 
 	 * 
 	 */
 	public void toggleDataCreator() {

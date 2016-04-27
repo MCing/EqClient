@@ -5,6 +5,7 @@ package com.eqcli.view;
 import com.eqcli.application.EqClient;
 import com.eqcli.application.LogEvent;
 import com.eqcli.simulation.DataCreatorTask;
+import com.eqcli.simulation.DataReport;
 import com.eqcli.util.Constant;
 import com.eqcli.util.EqConfig;
 import com.eqcli.util.JDBCHelper;
@@ -81,6 +82,14 @@ public class ClientMainController {
 	private Button creatorToggle;
 	@FXML
 	private Button creatorUpdate;
+	@FXML
+	private TableView<DataReport>  dataTable;
+	@FXML
+	private TableColumn<DataReport, String> dataTime;
+	@FXML
+	private TableColumn<DataReport, String> dataType;
+	@FXML
+	private TableColumn<DataReport, String> dataId;
 	
 	//日志
 	@FXML
@@ -95,6 +104,7 @@ public class ClientMainController {
 		initMainTab();
 		initDbTab();
 		initConfigTab();
+		//init log tableview
 		logTime
 		.setCellValueFactory(new PropertyValueFactory<LogEvent, String>(
 				"time"));
@@ -103,6 +113,18 @@ public class ClientMainController {
 				"event"));
 
 		logArea.setItems(EqClient.logList);
+		//init data creator tableviews
+		dataTime
+		.setCellValueFactory(new PropertyValueFactory<DataReport, String>(
+				"time"));
+		dataType
+		.setCellValueFactory(new PropertyValueFactory<DataReport, String>(
+				"type"));
+		dataId
+		.setCellValueFactory(new PropertyValueFactory<DataReport, String>(
+				"id"));
+
+		dataTable.setItems(EqClient.dataList);
 	}
 	/** 初始化主页 tab */
 	private void initMainTab(){

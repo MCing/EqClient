@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane id="tool-bar-background" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.eqcli.view.ClientMainController">
+<BorderPane id="tool-bar-background" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.eqcli.view.ClientMainController">
    <center>
       <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
         <tabs>
@@ -118,12 +119,39 @@
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <Label layoutX="41.0" layoutY="35.0" text="波形数据产生状态：" />
-                        <Label layoutX="41.0" layoutY="68.0" text="已产生数据数量：" />
-                        <Label fx:id="creatorStateLabel" layoutX="149.0" layoutY="35.0" text="Label" />
-                        <Label fx:id="creatorCounter" layoutX="149.0" layoutY="68.0" text="Label" />
-                        <Button layoutX="223.0" layoutY="31.0" mnemonicParsing="false" onAction="#handleCreatorToggle" text="开/关" />
-                        <Button layoutX="223.0" layoutY="64.0" mnemonicParsing="false" onAction="#handleCreatorUpdate" text="更新" />
+                        <TableView fx:id="dataTable" layoutX="293.0" prefHeight="360.0" prefWidth="407.0">
+                          <columns>
+                            <TableColumn fx:id="dataTime" prefWidth="140.0" text="时间" />
+                            <TableColumn fx:id="dataType" prefWidth="119.0" text="类型" />
+                              <TableColumn fx:id="dataId" prefWidth="143.0" text="包序号" />
+                          </columns>
+                        </TableView>
+                        <HBox alignment="CENTER" layoutY="26.0" prefHeight="29.0" prefWidth="304.0">
+                           <children>
+                              <Label text="波形数据产生状态：" />
+                              <Label fx:id="creatorStateLabel" alignment="CENTER" text="Label">
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin>
+                              </Label>
+                              <Button mnemonicParsing="false" onAction="#handleCreatorToggle" text="开/关">
+                                 <HBox.margin>
+                                    <Insets left="20.0" />
+                                 </HBox.margin>
+                              </Button>
+                           </children>
+                        </HBox>
+                        <HBox alignment="CENTER" layoutY="78.0" prefHeight="31.0" prefWidth="273.0">
+                           <children>
+                              <Label text="已产生数据数量：" />
+                              <Label fx:id="creatorCounter" text="Label" />
+                              <Button mnemonicParsing="false" onAction="#handleCreatorUpdate" text="更新">
+                                 <HBox.margin>
+                                    <Insets left="20.0" />
+                                 </HBox.margin>
+                              </Button>
+                           </children>
+                        </HBox>
                      </children>
                   </AnchorPane>
               </content>
@@ -132,18 +160,16 @@
       </TabPane>
    </center>
    <bottom>
-      <TitledPane animated="false" collapsible="false" prefHeight="175.0" prefWidth="600.0" text="日志" BorderPane.alignment="CENTER">
-        <content>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-               <children>
-                  <TableView fx:id="logArea" layoutX="36.0" layoutY="-24.0" prefHeight="151.0" prefWidth="598.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                    <columns>
-                      <TableColumn fx:id="logTime" prefWidth="75.0" text="时间" />
-                      <TableColumn fx:id="logEvent" prefWidth="497.99999237060547" text="事件" />
-                    </columns>
-                  </TableView>
-               </children></AnchorPane>
-        </content>
-      </TitledPane>
+      <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label text="系统日志" />
+            <TableView fx:id="logArea" prefHeight="200.0" prefWidth="600.0">
+              <columns>
+                <TableColumn fx:id="logTime" prefWidth="75.0" text="时间" />
+                <TableColumn fx:id="logEvent" prefWidth="497.99999237060547" text="事件" />
+              </columns>
+            </TableView>
+         </children>
+      </VBox>
    </bottom>
 </BorderPane>

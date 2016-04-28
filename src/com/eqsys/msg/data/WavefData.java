@@ -259,7 +259,4 @@ public class WavefData implements Serializable{
 		this.dataBlock = data;
 	}
 	
-
-	
-	
 }

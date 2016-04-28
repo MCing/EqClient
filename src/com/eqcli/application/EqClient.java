@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
 
 import com.eqcli.handler.CtrlRespHandler;
 import com.eqcli.handler.RegReqHandler;
-import com.eqcli.simulation.DataCreatorTask;
+import com.eqcli.simulation.WavefDataCreatorTask;
 import com.eqcli.simulation.DataReport;
 import com.eqcli.util.Constant;
 import com.eqcli.util.JDBCHelper;
@@ -274,7 +274,7 @@ public class EqClient extends Application {
 		}
 		boolean isTurnOn = false;
 		if (dataCreatorFuture == null) {
-			dataCreatorFuture = executor.scheduleAtFixedRate(new DataCreatorTask(), 1000, 500, TimeUnit.MILLISECONDS);
+			dataCreatorFuture = executor.scheduleAtFixedRate(new WavefDataCreatorTask(), 1000, 500, TimeUnit.MILLISECONDS);
 			isTurnOn = true;
 		} else {
 			dataCreatorFuture.cancel(true);

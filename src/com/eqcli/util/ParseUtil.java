@@ -4,8 +4,28 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import com.eqcli.application.EqClient;
+import com.eqsys.msg.MsgConstant;
 
 public class ParseUtil {
+	
+	/** 传输数据类型转换 */
+	public static String parseDataType(String type){
+		
+		String typeStr = null;
+		if(type.equals(MsgConstant.TYPE_WC)){    //连续波形数据
+			typeStr = "连续波形数据";
+		}else if(type.equals(MsgConstant.TYPE_WT)){	  //触发波形数据
+			typeStr = "触发波形数据";
+		}else if(type.equals(MsgConstant.TYPE_WS)){    //时间段波形数据
+			typeStr = "时间段波形数据";
+		}else if(type.equals(MsgConstant.TYPE_TI)){    //触发信息
+			typeStr = "触发信息数据";
+		}else if(type.equals(MsgConstant.TYPE_SI)){    //状态信息
+			typeStr = "状态信息数据";
+		}
+		
+		return typeStr;
+	}
 
 	
 	/** 根据传输模式id 获取模式字符串 */

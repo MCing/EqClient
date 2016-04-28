@@ -4,7 +4,8 @@ package com.eqcli.view;
 
 import com.eqcli.application.EqClient;
 import com.eqcli.application.LogEvent;
-import com.eqcli.simulation.DataCreatorTask;
+import com.eqcli.simulation.TriggerDetection;
+import com.eqcli.simulation.WavefDataCreatorTask;
 import com.eqcli.simulation.DataReport;
 import com.eqcli.util.Constant;
 import com.eqcli.util.EqConfig;
@@ -90,6 +91,15 @@ public class ClientMainController {
 	private TableColumn<DataReport, String> dataType;
 	@FXML
 	private TableColumn<DataReport, String> dataId;
+	@FXML
+	private Button triggerBtn;
+	
+	
+	//模拟触发开关
+	@FXML
+	private void handleTrigger(){
+		TriggerDetection.triggerSignal = !TriggerDetection.triggerSignal;
+	}
 	
 	//日志
 	@FXML
@@ -98,6 +108,8 @@ public class ClientMainController {
 	private TableColumn<LogEvent, String> logTime;
 	@FXML
 	private TableColumn<LogEvent, String> logEvent;
+	
+	
 	
 	@FXML
 	private void initialize() {
@@ -147,7 +159,7 @@ public class ClientMainController {
 			dbStateLabel.setText("未连接");
 		}
 		
-		creatorCounter.setText(String.valueOf(DataCreatorTask.getCount()));
+		creatorCounter.setText(String.valueOf(WavefDataCreatorTask.getCount()));
 		creatorStateLabel.setTextFill(Color.RED);
 		creatorStateLabel.setText("未启用");
 	}
@@ -222,7 +234,7 @@ public class ClientMainController {
 	@FXML 
 	private void handleCreatorUpdate(){
 		
-		creatorCounter.setText(String.valueOf(DataCreatorTask.getCount()));
+		creatorCounter.setText(String.valueOf(WavefDataCreatorTask.getCount()));
 	}
 	
 	public void setMainApp(EqClient client){

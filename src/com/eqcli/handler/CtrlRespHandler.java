@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 
 import com.eqcli.application.EqClient;
 import com.eqcli.task.ContinuousTask;
+import com.eqcli.task.TriggerTask;
 import com.eqcli.util.Constant;
 import com.eqcli.util.DataBuilder;
 import com.eqcli.util.ParseUtil;
@@ -116,6 +117,8 @@ public class CtrlRespHandler extends ChannelHandlerAdapter {
 		}
 	}
 
+	
+	private TriggerTask triggerTask;
 	/**
 	 * 切换传输模式
 	 * 
@@ -130,27 +133,19 @@ public class CtrlRespHandler extends ChannelHandlerAdapter {
 			EqClient.transMode = mode;
 		}
 		// 延时后启动相应模式,延时是为了让正在运行模式的任务处理完
+		prepareTask();
 		switch (mode) {
 		case Constant.MODE_CONTINUOUS:
-			if(transTask != null && transTask.isCancelled()){
-				transTask.cancel(true);
-			}
 			transTask = ctx.executor().scheduleAtFixedRate(new ContinuousTask(ctx,
 					lastPacketId), 500, 500, TimeUnit.MILLISECONDS);
 			break;
 		case Constant.MODE_TRG_WAVE:
-			if(transTask != null && transTask.isCancelled()){
-				transTask.cancel(true);
-			}
-			transTask = ctx.executor().scheduleAtFixedRate(new ContinuousTask(ctx,
-					lastPacketId), 10, 500, TimeUnit.MILLISECONDS);
+			triggerTask = new TriggerTask(ctx, true);
+			transTask = ctx.executor().scheduleAtFixedRate(triggerTask, 10, 1000, TimeUnit.MILLISECONDS);
 			break;
 		case Constant.MODE_TRG_NWAV:
-			if(transTask != null && transTask.isCancelled()){
-				transTask.cancel(true);
-			}
-			transTask = ctx.executor().scheduleAtFixedRate(new ContinuousTask(ctx,
-					lastPacketId), 10, 500, TimeUnit.MILLISECONDS);
+			triggerTask = new TriggerTask(ctx, false);
+			transTask = ctx.executor().scheduleAtFixedRate(triggerTask, 10, 1000, TimeUnit.MILLISECONDS);
 			break;
 		default: // 空闲模式
 			if (transTask != null) {
@@ -159,6 +154,17 @@ public class CtrlRespHandler extends ChannelHandlerAdapter {
 			transTask = null;
 			break;
 		}
-
+	}
+	
+	/** 切换传输模式前的准备,关闭开启的任务 */
+	private void prepareTask(){
+		if(triggerTask != null){
+			triggerTask.shutdownITask();
+			triggerTask = null;
+		}
+		if(transTask != null && !transTask.isCancelled()){
+			transTask.cancel(true);
+			transTask = null;
+		}
 	}
 }

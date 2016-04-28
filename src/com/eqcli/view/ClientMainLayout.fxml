@@ -152,6 +152,7 @@
                               </Button>
                            </children>
                         </HBox>
+                        <Button layoutX="103.0" layoutY="151.0" mnemonicParsing="false" onAction="#handleTrigger" text="触发" />
                      </children>
                   </AnchorPane>
               </content>

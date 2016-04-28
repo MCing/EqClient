@@ -118,17 +118,16 @@ public class DataBuilder {
 	}
 
 	/** 构造状态信息消息包 */
-	public static EqMessage buildStatusDataMsg(int id) {
+	public static EqMessage buildStatusDataMsg(StatusData data) {
 
 		EqMessage msg = new EqMessage();
 		Header header = new Header();
 		header.setMsgType(MsgConstant.TYPE_SI);
-		header.setPid(id);
+		header.setPid(data.getId());
 		header.setServerId(SysConfig.getServerId());
 		header.setStationId(EqConfig.stdId);
 
 		msg.setHeader(header);
-		msg.setBody(buildStatusData(id));
 		return msg;
 	}
 

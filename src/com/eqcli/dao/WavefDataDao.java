@@ -258,4 +258,66 @@ public class WavefDataDao extends BaseDao<WavefData> {
 		return list;
 	}
 
+	/** 获取触发时的波形数据  */
+	public List<WavefData> getTrgData(int id, long endtime) {
+		List<WavefData> list = new ArrayList<WavefData>();
+		String sql = "select * from " + mTableName + " where id > ? and starttime < ?;";
+		
+		PreparedStatement preStat = null;
+		Connection conn = null;
+		try{
+			conn = JDBCHelper.getDBConnection();
+			preStat = conn.prepareStatement(sql);
+			preStat.setLong(1, id);
+			preStat.setLong(2, endtime);
+			ResultSet result = preStat.executeQuery();
+			while(result.next()){
+				WavefData data = new WavefData();
+				data.setId(result.getInt("id"));
+				data.setQuality(result.getString("qid"));
+				data.setLocId(result.getString("localid"));   //2Bytes
+				data.setChannId(result.getString("channid"));     //2Bytes
+				data.setStartTime(result.getLong("starttime"));		 //
+				data.setSamNum(result.getShort("samcount"));
+				data.setSamFactor(result.getShort("samfactor"));
+				data.setSamMul(result.getShort("sammul"));
+				data.setActFlag(result.getByte("actid"));
+				data.setIocFlag(result.getByte("iocflag"));
+				data.setDqFlag(result.getByte("dataqflag"));
+				data.setBlockNum(result.getByte("blockcount"));
+				data.setTimeCorr(result.getInt("timecorr"));
+				data.setStartOffs(result.getShort("dataoffs"));
+				data.setSubBlockOffs(result.getShort("subblockoffs"));
+				//sub block header
+				data.setOrder(result.getByte("byteorder"));
+				data.setCodeFormat(result.getByte("codeformat"));
+				data.setDataLen(result.getByte("datalen"));
+				data.setBlockId(result.getShort("nextblockid"));
+				data.sethBlockType(result.getShort("subheadtype"));
+				//sub block
+				data.setDim(result.getByte("dimension"));
+				data.setSensFactor(result.getInt("sensfactor"));
+				data.setBlockType(result.getShort("subblocktype"));
+				//data
+				Blob block = result.getBlob("datablock");
+				data.setDataBlock(block.getBytes(1, (int) block.length()));
+				list.add(data);
+			}
+		}catch(SQLException e){
+			e.printStackTrace();
+		}finally {
+			try {
+				if (preStat != null) {
+					preStat.close();
+				}
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			// 释放连接
+			JDBCHelper.closeDBConnection(conn);
+		}
+		return list;
+	}
+
 }

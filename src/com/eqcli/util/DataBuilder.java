@@ -31,7 +31,7 @@ public class DataBuilder {
 		regMsg.setLatitude(Math.round(EqConfig.latitude*100000));
 		regMsg.setLongitude(Math.round(EqConfig.longitude*100000));
 		regMsg.setSensitivity(EqConfig.sensitivity);
-		regMsg.setTransMode(EqClient.transMode);
+		regMsg.setTransMode(EqClient.defTransMode);
 		regMsg.setTriggerThreshold(EqConfig.triggerThreshold);
 		regMsg.setCtrlAuthority((short) 0);
 
@@ -62,10 +62,10 @@ public class DataBuilder {
 	}
 
 	/** 构造 触发信息参数数据 */
-	public static TrgData buildTrgData() {
+	public static TrgData buildTrgData(int id) {
 
 		TrgData data = new TrgData();
-
+		data.setId(id);
 		data.setEwToPga(random.nextInt(2000));
 		data.setEwToPgd(random.nextInt(2000));
 		data.setEwToPgv(random.nextInt(2000));

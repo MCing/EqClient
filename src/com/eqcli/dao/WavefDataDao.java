@@ -99,8 +99,8 @@ public class WavefDataDao extends BaseDao<WavefData> {
 			preStat.setInt(1, start);
 			preStat.setInt(2, count);
 			ResultSet result = preStat.executeQuery();
-			WavefData data = new WavefData();
 			while(result.next()){
+				WavefData data = new WavefData();
 				data.setId(result.getInt("id"));
 				data.setQuality(result.getString("qid"));
 				data.setLocId(result.getString("localid"));   //2Bytes
@@ -209,8 +209,8 @@ public class WavefDataDao extends BaseDao<WavefData> {
 			preStat.setLong(1, startTime);
 			preStat.setLong(2, endTime);
 			ResultSet result = preStat.executeQuery();
-			WavefData data = new WavefData();
 			while(result.next()){
+				WavefData data = new WavefData();
 				data.setId(result.getInt("id"));
 				data.setQuality(result.getString("qid"));
 				data.setLocId(result.getString("localid"));   //2Bytes

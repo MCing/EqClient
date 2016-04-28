@@ -27,7 +27,7 @@ public class TriggerDetection {
 	/** 获取触发时的触发信息数据接口 */
 	public static TrgData getTrgData(int id){
 		
-		return DataBuilder.buildTrgData();
+		return DataBuilder.buildTrgData(id);
 	}
 	
 	

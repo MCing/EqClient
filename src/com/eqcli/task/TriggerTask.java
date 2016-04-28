@@ -65,12 +65,8 @@ public class TriggerTask extends TransTask {
 				if (withWavefData) {
 					List<WavefData> list = dao.getLast30(UTCTimeUtil
 							.getUTCTimeLong());
-					for (WavefData data : list) {
-						System.err.println("start time:" + data.getStartTime());
-					}
 					
 					wavefDataPid = list.get(list.size() - 1).getId();
-					log.error("last wavefdatapid:"+wavefDataPid);
 					// 加锁。。。。。。。。未完成
 					wavefDataQueue.addAll(list);
 				}
@@ -133,7 +129,7 @@ public class TriggerTask extends TransTask {
 
 	/**
 	 * 传出波形数据和触发信息线程
-	 * 
+	 * 发送队列驱动数据的发送
 	 */
 	private class SendDataTask implements Runnable {
 

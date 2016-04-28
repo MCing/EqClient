@@ -54,9 +54,9 @@ public class CtrlRespHandler extends ChannelHandlerAdapter {
 			case MsgConstant.CMD_TRANSMODE: {
 				// state = handle(); //进一步处理返回状态 告知服务器
 				TransModeReq submsg = (TransModeReq) bodyMsg;
-				switchTransMode(submsg.getSubTransMode(), ctx);
 				short tmpMode = submsg.getSubTransMode();
-				if(tmpMode == 0) {	tmpMode = EqClient.transMode;	}
+				if(tmpMode == 0) { tmpMode = EqClient.defTransMode; }
+				switchTransMode(tmpMode, ctx);
 				respMsg = "切换到"+ParseUtil.parseTransMode(tmpMode);
 				client.updateUI(Constant.UICODE_MODE, ParseUtil.parseTransMode(tmpMode));
 			}
@@ -125,19 +125,25 @@ public class CtrlRespHandler extends ChannelHandlerAdapter {
 	 * @param mode
 	 *            要切换的传输模式 -1:空闲模式 0:不改变模式 1:连续波形 2:触发传输传波形 3:触发传输不传波形
 	 * @param ctx
+	 * 
+	 * 空闲模式---------连续    使用lastPacketId
+	 * 触发模式（两种）----连续   不续传
+	 * 
 	 */
 	private void switchTransMode(short mode, ChannelHandlerContext ctx) {
 
-		mode = (mode == 0) ? EqClient.transMode : mode;
-		if (mode != Constant.MODE_IDLE) {
-			EqClient.transMode = mode;
-		}
+		
 		// 延时后启动相应模式,延时是为了让正在运行模式的任务处理完
 		prepareTask();
 		switch (mode) {
 		case Constant.MODE_CONTINUOUS:
+			int startPid = lastPacketId;
+			//从触发模式转到连续传输模式，包序号不续传
+			if(EqClient.currTransMode == Constant.MODE_TRG_NWAV || EqClient.currTransMode == Constant.MODE_TRG_WAVE){
+				startPid = 0xffffffff;
+			}
 			transTask = ctx.executor().scheduleAtFixedRate(new ContinuousTask(ctx,
-					lastPacketId), 500, 500, TimeUnit.MILLISECONDS);
+					startPid), 500, 500, TimeUnit.MILLISECONDS);
 			break;
 		case Constant.MODE_TRG_WAVE:
 			triggerTask = new TriggerTask(ctx, true);
@@ -154,6 +160,7 @@ public class CtrlRespHandler extends ChannelHandlerAdapter {
 			transTask = null;
 			break;
 		}
+		EqClient.currTransMode = mode;
 	}
 	
 	/** 切换传输模式前的准备,关闭开启的任务 */

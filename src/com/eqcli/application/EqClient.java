@@ -62,8 +62,8 @@ public class EqClient extends Application {
 	public static ObservableList<LogEvent> logList = FXCollections.observableArrayList();
 	public static ObservableList<DataReport> dataList = FXCollections.observableArrayList();
 
-	// 全局传输模式
-	public static volatile short transMode = Constant.MODE_CONTINUOUS;
+	public static volatile short currTransMode = Constant.MODE_IDLE;  //当前传输模式
+	public static short defTransMode = Constant.MODE_CONTINUOUS;  //默认传输模式
 
 	// netty 对象
 	private Bootstrap bootstrap;

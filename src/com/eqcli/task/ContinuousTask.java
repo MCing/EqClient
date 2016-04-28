@@ -19,12 +19,10 @@ public class ContinuousTask extends TransTask {
 	private Logger log = Logger.getLogger(ContinuousTask.class);
 
 	/** 发送队列 */
-	private static LinkedList<WavefData> sendQueue;
+	private LinkedList<WavefData> sendQueue;
 	private int queueCapacity = 20; // 容量
 	private WavefDataDao dao;
 	private int lastSendedId = 0;
-
-	private int tmp;
 
 	public ContinuousTask(ChannelHandlerContext _ctx, int packetid) {
 
@@ -74,9 +72,6 @@ public class ContinuousTask extends TransTask {
 	private void Reloading(int start, int count) {
 
 		List<WavefData> list = dao.get(start, count);
-//		for(WavefData data : list){
-//			System.err.println("reload:"+data.getId());
-//		}
 		sendQueue.addAll(list);
 	}
 

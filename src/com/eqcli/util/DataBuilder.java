@@ -71,7 +71,6 @@ public class DataBuilder {
 		data.setEwToPgv(random.nextInt(2000));
 		data.setEwToPsa03(random.nextInt(2000));
 		data.setEwToPsa10(random.nextInt(2000));
-		data.setEwToPsa10(random.nextInt(2000));
 		data.setEwToPsa30(random.nextInt(2000));
 		data.setInitMotionDir((short) random.nextInt(2000));
 		data.setIntensity((short) random.nextInt(2000));

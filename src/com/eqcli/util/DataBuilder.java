@@ -127,6 +127,7 @@ public class DataBuilder {
 		header.setStationId(EqConfig.stdId);
 
 		msg.setHeader(header);
+		msg.setBody(data);
 		return msg;
 	}
 

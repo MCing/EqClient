@@ -86,8 +86,7 @@ public class CtrlRespHandler extends ChannelHandlerAdapter {
 
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-		//断开连接切换到空闲模式前，保存断开前的传输模式到默认模式中，下次重新连接时依然采用断开连接前的模式
-		EqClient.defTransMode = EqClient.currTransMode;
+		
 		switchTransMode(Constant.MODE_IDLE, ctx);
 	}
 
@@ -156,10 +155,10 @@ public class CtrlRespHandler extends ChannelHandlerAdapter {
 			transTask = ctx.executor().scheduleAtFixedRate(triggerTask, 10, 1000, TimeUnit.MILLISECONDS);
 			break;
 		default: // 空闲模式
-			if (transTask != null) {
-				transTask.cancel(true);
+			//断开连接切换到空闲模式前，保存断开前的传输模式到默认模式中，下次重新连接时依然采用断开连接前的模式
+			if (EqClient.currTransMode != Constant.MODE_IDLE) {
+				EqClient.defTransMode = EqClient.currTransMode;
 			}
-			transTask = null;
 			break;
 		}
 		EqClient.currTransMode = mode;

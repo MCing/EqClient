@@ -29,15 +29,14 @@ public class JDBCHelper {
 			return true;
 		}
 		// 使用连接池,数据源
-		MysqlConnectionPoolDataSource ds = new MysqlConnectionPoolDataSource();
-
-		ds.setServerName(SysConfig.getJdbcServerName());
-		ds.setPort(SysConfig.getJdbcPort());
-		ds.setDatabaseName(SysConfig.getJdbcDb());
-		ds.setUser(SysConfig.getJdbcUser());
-		ds.setPassword(SysConfig.getJdbcPasswd());
-
-		poolMgr = new MiniConnectionPoolManager(ds, connectionPoolCapacity);
+		configDB(SysConfig.getJdbcDb());
+//		MysqlConnectionPoolDataSource ds = new MysqlConnectionPoolDataSource();
+//		ds.setServerName(SysConfig.getJdbcServerName());
+//		ds.setPort(SysConfig.getJdbcPort());
+//		ds.setDatabaseName(SysConfig.getJdbcDb());
+//		ds.setUser(SysConfig.getJdbcUser());
+//		ds.setPassword(SysConfig.getJdbcPasswd());
+//		poolMgr = new MiniConnectionPoolManager(ds, connectionPoolCapacity);
 
 		
 		if (testConnection()) {
@@ -126,16 +125,9 @@ public class JDBCHelper {
 
 			stat.close();
 			conn.close();
-
-			// 重新配置数据库配置
 			closeDB();
-			MysqlConnectionPoolDataSource ds = new MysqlConnectionPoolDataSource();
-			ds.setServerName(SysConfig.getJdbcServerName());
-			ds.setPort(SysConfig.getJdbcPort());
-			ds.setDatabaseName(tmpDatabase);
-			ds.setUser(SysConfig.getJdbcUser());
-			ds.setPassword(SysConfig.getJdbcPasswd());
-			poolMgr = new MiniConnectionPoolManager(ds, connectionPoolCapacity);
+			// 重新配置数据库配置
+			configDB(tmpDatabase);
 
 			// 创建表格
 			conn = getDBConnection();
@@ -146,10 +138,28 @@ public class JDBCHelper {
 			conn.close();
 
 		} catch (SQLException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
+			//数据库已存在
+			closeDB();
+			// 重新配置数据库配置
+			configDB(tmpDatabase);
 		}
 	}
-	
+	/** 配置数据库连接池
+	 * 
+	 * @param tmpDatabase	数据库名称
+	 */
+	private static void configDB(String tmpDatabase) {
+		
+		MysqlConnectionPoolDataSource ds = new MysqlConnectionPoolDataSource();
+		ds.setServerName(SysConfig.getJdbcServerName());
+		ds.setPort(SysConfig.getJdbcPort());
+		ds.setDatabaseName(tmpDatabase);
+		ds.setUser(SysConfig.getJdbcUser());
+		ds.setPassword(SysConfig.getJdbcPasswd());
+		poolMgr = new MiniConnectionPoolManager(ds, connectionPoolCapacity);
+	}
+
 	public static boolean getDbState(){
 		
 		return dbState;

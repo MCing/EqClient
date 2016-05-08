@@ -35,7 +35,7 @@ public class WavefDataCreatorTask implements Runnable {
 			packetid++;
 			counter++;
 			DataReport report = new DataReport();
-			report.setTime(UTCTimeUtil.getSimpleTimeStr(System.currentTimeMillis()));
+			report.setTime(UTCTimeUtil.timeFormat1(System.currentTimeMillis()));
 			report.setId(packetid);
 			report.setType("连续波形数据");
 			EqClient.dataList.add(report);

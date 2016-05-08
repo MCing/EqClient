@@ -83,7 +83,7 @@ public class DataBuilder {
 		data.setRelTimeSec((short) random.nextInt(2000));
 		data.setStaAndltaValue(random.nextInt(2000));
 		data.setStartTimeMs((short) random.nextInt(2000));
-		data.setStartTimeSec(UTCTimeUtil.getUTCTimeLong());
+		data.setStartTimeSec(UTCTimeUtil.getCurrUTCTime());
 		data.setUdToPga(random.nextInt(2000));
 		data.setUdToPgd(random.nextInt(2000));
 		data.setUdToPgv(random.nextInt(2000));
@@ -109,7 +109,7 @@ public class DataBuilder {
 		data.setId(id);
 		data.setDur(random.nextInt(100));
 		;
-		data.setStartTime(UTCTimeUtil.getUTCTimeLong());
+		data.setStartTime(UTCTimeUtil.getCurrUTCTime());
 		data.setEwPeakValue(ew);
 		data.setNsPeakValue(ns);
 		data.setUdPeakValue(ud);
@@ -156,7 +156,7 @@ public class DataBuilder {
 		data.setId(id);
 		data.setLocId("00"); // 2Bytes
 		data.setChannId("11"); // 2Bytes
-		data.setStartTime(UTCTimeUtil.getUTCTimeLong()); //
+		data.setStartTime(UTCTimeUtil.getCurrUTCTime());
 		data.setSamNum((short) random.nextInt(Short.MAX_VALUE));
 		data.setSamFactor((short) random.nextInt(100));
 		data.setSamMul((short) random.nextInt(100));

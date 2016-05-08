@@ -67,7 +67,7 @@ public class TriggerTask extends TransTask {
 			if (!isTrigger) { // 第一次触发
 
 				if (withWavefData) {
-					List<WavefData> list = dao.getLast30(UTCTimeUtil.getUTCTimeLong());
+					List<WavefData> list = dao.getLast30(UTCTimeUtil.getCurrUTCTime());
 
 					wavefDataPid = list.get(list.size() - 1).getId();
 					log.error("第一次触发后的触发波形 size:" + list.size());
@@ -85,7 +85,7 @@ public class TriggerTask extends TransTask {
 			} else {
 				// 获取触发波形数据 ??
 				if (withWavefData) {
-					List<WavefData> list = dao.getTrgData(wavefDataPid, UTCTimeUtil.getUTCTimeLong());
+					List<WavefData> list = dao.getTrgData(wavefDataPid, UTCTimeUtil.getCurrUTCTime());
 
 					wavefDataPid = list.get(list.size() - 1).getId();
 					log.error("二次触发后的触发波形 size:" + list.size());

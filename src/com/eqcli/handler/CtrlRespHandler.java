@@ -72,7 +72,8 @@ public class CtrlRespHandler extends ChannelHandlerAdapter {
 				System.out.println("时间段数据申请包");
 				long starttime = submsg.getTimeCode();
 				long endtime = starttime+submsg.getPeriod();
-				dataReqTask = ctx.executor().scheduleAtFixedRate(new DataReqTask(ctx, starttime, endtime), 1000, 1000, TimeUnit.MILLISECONDS);
+				ctx.executor().schedule(new DataReqTask(ctx, starttime, endtime), 1000, TimeUnit.MILLISECONDS);
+//				dataReqTask = ctx.executor().scheduleAtFixedRate(new DataReqTask(ctx, starttime, endtime), 1000, 1000, TimeUnit.MILLISECONDS);
 			}
 				break;
 			case MsgConstant.CMD_TRGPRIOD:
@@ -97,10 +98,10 @@ public class CtrlRespHandler extends ChannelHandlerAdapter {
 
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-		if(dataReqTask != null){
-			dataReqTask.cancel(true);
-			dataReqTask = null;
-		}
+//		if(dataReqTask != null){
+//			dataReqTask.cancel(true);
+//			dataReqTask = null;
+//		}
 		switchTransMode(Constant.MODE_IDLE, ctx);
 	}
 

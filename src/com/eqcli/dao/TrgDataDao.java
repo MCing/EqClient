@@ -11,36 +11,25 @@ import javax.sql.PooledConnection;
 import com.eqcli.util.JDBCHelper;
 import com.eqsys.msg.data.TrgData;
 
-public class TrgDataDao extends BaseDao<TrgData> {
+public class TrgDataDao{
 
 	private static final String TableName = "triggerdata_t";
-	private String insertSql = "insert into "+TableName+
+	private static String insertSql = "insert into "+TableName+
 			"(starttimesec, starttimemsec, relattime, stalta, initmotiondir, "
 			+ "ud2pga, ud2pgv, ud2pgd, ew2pga, ew2pgv,ew2pgd, ns2pga, ns2pgv, ns2pgd,"
 			+ "ud2psa03, ud2psa10, ud2psa30, ew2psa03, ew2psa10,ew2psa30, ns2psa03, ns2psa10, ns2psa30,"
 			+ "intensity) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
 	
-	private String deleteSql = "delete from "+ TableName+ " where packetid=?;";
+	private static String deleteSql = "delete from "+ TableName+ " where packetid=?;";
 	
-	private PreparedStatement preStat;
-	private ResultSet result;
-	
-	public TrgDataDao() {
-	}
-	
-	@Override
-	public boolean save(TrgData t) {
+	public static boolean save(TrgData t) {
 		
 		boolean ret = false;
-		if(t == null){
-			return false;
-		}
 		Connection conn = null;
+		PreparedStatement preStat = null;
 		try {
 			conn = JDBCHelper.getDBConnection();
 			preStat = conn.prepareStatement(insertSql);
-			//System.out.println("starttimesec:"+t.getStartTimeSec());
-			//preStat.setLong(1, t.getStartTimeSec());
 			preStat.setLong(1, 10);
 			preStat.setShort(2, t.getStartTimeMs());
 			preStat.setShort(3, t.getRelTimeSec());
@@ -87,10 +76,10 @@ public class TrgDataDao extends BaseDao<TrgData> {
 		return ret;
 	}
 
-	@Override
-	public boolean delete(TrgData t) {
+	public static boolean delete(TrgData t) {
 		
 		Connection conn = null;
+		PreparedStatement preStat = null;
 		try {
 			conn = JDBCHelper.getDBConnection();
 			preStat = conn.prepareStatement(deleteSql);
@@ -110,11 +99,4 @@ public class TrgDataDao extends BaseDao<TrgData> {
 		}
 		return false;
 	}
-
-	@Override
-	public List<TrgData> get() {
-
-		return null;
-	}
-
 }

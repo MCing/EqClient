@@ -21,15 +21,15 @@ public class ContinuousTask extends TransTask {
 	/** 发送队列 */
 	private LinkedList<WavefData> sendQueue;
 	private int queueCapacity = 20; // 容量
-	private WavefDataDao dao;
+//	private WavefDataDao dao;
 	private int lastSendedId = 0;
 
 	public ContinuousTask(ChannelHandlerContext _ctx, int packetid) {
 
-		dao = new WavefDataDao();
+//		dao = new WavefDataDao();
 		sendQueue = new LinkedList<WavefData>();
 		if (packetid == 0xffffffff) { // 表示不继传,从最新的10个数据包开始
-			packetid = dao.getLastId() - 10;
+			packetid = WavefDataDao.getLastId() - 10;
 			if (packetid < 0) {
 				packetid = 0;
 			}
@@ -71,7 +71,7 @@ public class ContinuousTask extends TransTask {
 	/** 向发送队列中加载数据 */
 	private void Reloading(int start, int count) {
 
-		List<WavefData> list = dao.get(start, count);
+		List<WavefData> list = WavefDataDao.get(start, count);
 		sendQueue.addAll(list);
 	}
 

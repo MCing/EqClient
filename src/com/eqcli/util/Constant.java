@@ -15,6 +15,7 @@ public class Constant {
 	public static final short MODE_CONTINUOUS = 1;
 	public static final short MODE_TRG_WAVE = 2;
 	public static final short MODE_TRG_NWAV = 3;
+	public static final short MODE_DATAREQ = 4;
 	
 	/* 传输模式  */
 	public static final String TRANSMODE[] = {null, "连续波形传输", "触发传波形", "触发不传波形"};

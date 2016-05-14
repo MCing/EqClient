@@ -34,7 +34,7 @@ public class TriggerTask extends TransTask {
 	private ScheduledFuture stateFuture; // 发送状态信息任务
 	private ScheduledFuture sendDataFuture; // 发送触发数据任务
 	private boolean isTrigger;
-	private WavefDataDao dao;
+//	private WavefDataDao dao;
 	private LinkedList<WavefData> wavefDataQueue; // 发送队列，用于发送触发时的波形数据和触发信息
 	private LinkedList<TrgData> trgDataQueue; // 发送队列，用于发送触发时的波形数据和触发信息
 	private boolean withWavefData; // 触发是否传输波形数据
@@ -44,7 +44,7 @@ public class TriggerTask extends TransTask {
 	private int triDataPid;
 
 	public TriggerTask(ChannelHandlerContext _ctx, boolean withWavefData) {
-		dao = new WavefDataDao();
+//		dao = new WavefDataDao();
 		this.withWavefData = withWavefData;
 		this.context = _ctx;
 		trgDataQueue = new LinkedList<TrgData>();
@@ -67,7 +67,7 @@ public class TriggerTask extends TransTask {
 			if (!isTrigger) { // 第一次触发
 
 				if (withWavefData) {
-					List<WavefData> list = dao.getLast30(UTCTimeUtil.getCurrUTCTime());
+					List<WavefData> list = WavefDataDao.getLast30(UTCTimeUtil.getCurrUTCTime());
 
 					wavefDataPid = list.get(list.size() - 1).getId();
 					log.error("第一次触发后的触发波形 size:" + list.size());
@@ -85,7 +85,7 @@ public class TriggerTask extends TransTask {
 			} else {
 				// 获取触发波形数据 ??
 				if (withWavefData) {
-					List<WavefData> list = dao.getTrgData(wavefDataPid, UTCTimeUtil.getCurrUTCTime());
+					List<WavefData> list = WavefDataDao.getTrgData(wavefDataPid, UTCTimeUtil.getCurrUTCTime());
 
 					wavefDataPid = list.get(list.size() - 1).getId();
 					log.error("二次触发后的触发波形 size:" + list.size());

@@ -14,19 +14,15 @@ import java.util.List;
 import com.eqcli.util.JDBCHelper;
 import com.eqsys.msg.data.WavefData;
 
-public class WavefDataDao extends BaseDao<WavefData> {
+public class WavefDataDao{
 
-	private String mTableName = "wavefdata_t";
-	private String mInsertSql = "insert into " + mTableName
+	private static String mTableName = "wavefdata_t";
+	private static String mInsertSql = "insert into " + mTableName
 			+ "(id, qid, localid, channid, starttime, samcount, samfactor, sammul, actid, iocflag, dataqflag, blockcount, timecorr, dataoffs, subblockoffs, subheadtype, nextblockid, codeformat, byteorder, datalen, subblocktype, dimension, sensfactor, datablock) "
 			+ "values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
-	@Override
-	public boolean save(WavefData t) {
+	public static boolean save(WavefData t) {
 
-		if (t == null) {
-			return false;
-		}
 		boolean ret = false;
 		PreparedStatement preStat = null;
 		Connection conn = null;
@@ -78,17 +74,11 @@ public class WavefDataDao extends BaseDao<WavefData> {
 		return ret;
 	}
 
-	@Override
-	public boolean delete(WavefData t) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
 	/** 根据id从数据库中获取数据
 	 * @param start  起始id  
 	 * @param count  数量
 	 */
-	public List<WavefData> get(int start, int count) {
+	public static List<WavefData> get(int start, int count) {
 		String sql = "select * from " + mTableName + " where id>=? limit ?;";
 		List<WavefData> list = new ArrayList<WavefData>();
 		PreparedStatement preStat = null;
@@ -152,7 +142,7 @@ public class WavefDataDao extends BaseDao<WavefData> {
 	 * 获取当前数据库中最大id值
 	 * @return
 	 */
-	public int getLastId(){
+	public static int getLastId(){
 		String sql = "select max(id) from wavefdata_t;";
 		Statement stat = null;
 		int id = 0;
@@ -188,14 +178,13 @@ public class WavefDataDao extends BaseDao<WavefData> {
 //		return null;
 //	}
 
-	@Override
-	public List<WavefData> get() {
+	public static List<WavefData> get() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 	//条件 select * from table where a>/</= b limit number
 	
-	public List<WavefData> getLast30(long time){
+	public static List<WavefData> getLast30(long time){
 		long startTime = time - 30000;
 		long endTime = time;
 		List<WavefData> list = new ArrayList<WavefData>();
@@ -259,7 +248,7 @@ public class WavefDataDao extends BaseDao<WavefData> {
 	}
 
 	/** 获取触发时的波形数据  */
-	public List<WavefData> getTrgData(int id, long endtime) {
+	public static List<WavefData> getTrgData(int id, long endtime) {
 		List<WavefData> list = new ArrayList<WavefData>();
 		String sql = "select * from " + mTableName + " where id > ? and starttime < ?;";
 		
@@ -318,6 +307,70 @@ public class WavefDataDao extends BaseDao<WavefData> {
 			JDBCHelper.closeDBConnection(conn);
 		}
 		return list;
+	}
+
+	/** 根据开始时间和结束时间获取波形数据 */
+	public static List<WavefData> get(long starttime, long endtime) {
+
+		List<WavefData> list = new ArrayList<WavefData>();
+		String sql = "select * from " + mTableName + " where starttime > ? and starttime < ?;";
+		
+		PreparedStatement preStat = null;
+		Connection conn = null;
+		try{
+			conn = JDBCHelper.getDBConnection();
+			preStat = conn.prepareStatement(sql);
+			preStat.setLong(1, starttime);
+			preStat.setLong(2, endtime);
+			ResultSet result = preStat.executeQuery();
+			while(result.next()){
+				WavefData data = new WavefData();
+				data.setId(result.getInt("id"));
+				data.setQuality(result.getString("qid"));
+				data.setLocId(result.getString("localid"));   //2Bytes
+				data.setChannId(result.getString("channid"));     //2Bytes
+				data.setStartTime(result.getLong("starttime"));		 //
+				data.setSamNum(result.getShort("samcount"));
+				data.setSamFactor(result.getShort("samfactor"));
+				data.setSamMul(result.getShort("sammul"));
+				data.setActFlag(result.getByte("actid"));
+				data.setIocFlag(result.getByte("iocflag"));
+				data.setDqFlag(result.getByte("dataqflag"));
+				data.setBlockNum(result.getByte("blockcount"));
+				data.setTimeCorr(result.getInt("timecorr"));
+				data.setStartOffs(result.getShort("dataoffs"));
+				data.setSubBlockOffs(result.getShort("subblockoffs"));
+				//sub block header
+				data.setOrder(result.getByte("byteorder"));
+				data.setCodeFormat(result.getByte("codeformat"));
+				data.setDataLen(result.getByte("datalen"));
+				data.setBlockId(result.getShort("nextblockid"));
+				data.sethBlockType(result.getShort("subheadtype"));
+				//sub block
+				data.setDim(result.getByte("dimension"));
+				data.setSensFactor(result.getInt("sensfactor"));
+				data.setBlockType(result.getShort("subblocktype"));
+				//data
+				Blob block = result.getBlob("datablock");
+				data.setDataBlock(block.getBytes(1, (int) block.length()));
+				list.add(data);
+			}
+		}catch(SQLException e){
+			e.printStackTrace();
+		}finally {
+			try {
+				if (preStat != null) {
+					preStat.close();
+				}
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			// 释放连接
+			JDBCHelper.closeDBConnection(conn);
+		}
+		return list;
+		
 	}
 
 }

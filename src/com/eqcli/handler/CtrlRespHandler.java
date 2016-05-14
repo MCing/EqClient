@@ -5,7 +5,9 @@ import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 
 import com.eqcli.application.EqClient;
+import com.eqcli.simulation.DataReport;
 import com.eqcli.task.ContinuousTask;
+import com.eqcli.task.DataReqTask;
 import com.eqcli.task.TriggerTask;
 import com.eqcli.util.Constant;
 import com.eqcli.util.DataBuilder;
@@ -13,9 +15,11 @@ import com.eqcli.util.ParseUtil;
 import com.eqsys.msg.CommandReq;
 import com.eqsys.msg.EqMessage;
 import com.eqsys.msg.MsgConstant;
+import com.eqsys.msg.PeriodDataReq;
 import com.eqsys.msg.RegResp;
 import com.eqsys.msg.ThresholdReq;
 import com.eqsys.msg.TransModeReq;
+import com.mysql.jdbc.Constants;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerAdapter;
@@ -27,6 +31,7 @@ public class CtrlRespHandler extends ChannelHandlerAdapter {
 	private Logger log = Logger.getLogger(CtrlRespHandler.class);
 	private EqClient client;
 	private ScheduledFuture transTask;
+	private ScheduledFuture dataReqTask;
 
 	private int lastPacketId;
 	
@@ -61,8 +66,14 @@ public class CtrlRespHandler extends ChannelHandlerAdapter {
 				client.updateUI(Constant.UICODE_MODE, ParseUtil.parseTransMode(tmpMode));
 			}
 				break;
-			case MsgConstant.CMD_PERIODDATA:
+			case MsgConstant.CMD_PERIODDATA:{
+				PeriodDataReq submsg = (PeriodDataReq) bodyMsg;
+				respMsg = "时间段数据申请响应";
 				System.out.println("时间段数据申请包");
+				long starttime = submsg.getTimeCode();
+				long endtime = starttime+submsg.getPeriod();
+				dataReqTask = ctx.executor().scheduleAtFixedRate(new DataReqTask(ctx, starttime, endtime), 1000, 1000, TimeUnit.MILLISECONDS);
+			}
 				break;
 			case MsgConstant.CMD_TRGPRIOD:
 				ThresholdReq thrmsg = (ThresholdReq)bodyMsg;
@@ -86,7 +97,10 @@ public class CtrlRespHandler extends ChannelHandlerAdapter {
 
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-		
+		if(dataReqTask != null){
+			dataReqTask.cancel(true);
+			dataReqTask = null;
+		}
 		switchTransMode(Constant.MODE_IDLE, ctx);
 	}
 

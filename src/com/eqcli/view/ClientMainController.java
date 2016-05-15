@@ -78,11 +78,7 @@ public class ClientMainController {
 	@FXML
 	private Label creatorStateLabel;
 	@FXML
-	private Label creatorCounter;
-	@FXML
-	private Button creatorToggle;
-	@FXML
-	private Button creatorUpdate;
+	private Label triggerStateLabel;
 	@FXML
 	private TableView<DataReport>  dataTable;
 	@FXML
@@ -98,7 +94,12 @@ public class ClientMainController {
 	//模拟触发开关
 	@FXML
 	private void handleTrigger(){
-		TriggerDetection.triggerSignal = !TriggerDetection.triggerSignal;
+		TriggerDetection.toggleTriggerSignal();
+		if(TriggerDetection.detect()){
+			triggerStateLabel.setText("触发");
+		}else{
+			triggerStateLabel.setText("未触发");			
+		}
 	}
 	
 	//日志
@@ -159,7 +160,6 @@ public class ClientMainController {
 			dbStateLabel.setText("未连接");
 		}
 		
-		creatorCounter.setText(String.valueOf(WavefDataCreatorTask.getCount()));
 		creatorStateLabel.setTextFill(Color.RED);
 		creatorStateLabel.setText("未启用");
 	}
@@ -231,11 +231,6 @@ public class ClientMainController {
 	private void handleCreatorToggle(){
 		mainApp.toggleDataCreator();
 	}
-	@FXML 
-	private void handleCreatorUpdate(){
-		
-		creatorCounter.setText(String.valueOf(WavefDataCreatorTask.getCount()));
-	}
 	
 	public void setMainApp(EqClient client){
 		this.mainApp = client;
@@ -248,7 +243,7 @@ public class ClientMainController {
 	 */
 	public void update(int updatecode, Object value) {
 
-		if(updatecode == Constant.UICODE_STATE){
+		if(updatecode == Constant.UICODE_STATE){	//与台网连接状态
 			
 			if((boolean)value){
 				stateLabel.setTextFill(Color.GREEN);
@@ -257,13 +252,13 @@ public class ClientMainController {
 				stateLabel.setTextFill(Color.RED);
 				stateLabel.setText("未连接");
 			}
-		}else if(updatecode == Constant.UICODE_MODE){
+		}else if(updatecode == Constant.UICODE_MODE){	//传输模式
 			
 			modeLabel.setText(value.toString());
-		}else if(updatecode == Constant.UICODE_THREHOLD){
+		}else if(updatecode == Constant.UICODE_THREHOLD){	//触发阈值
 			
 			threshHoldLabel.setText(String.valueOf((short)value));
-		}else if(updatecode ==Constant.UICODE_DBSTATE){
+		}else if(updatecode ==Constant.UICODE_DBSTATE){	//数据库连接状态
 			
 			if((boolean)value){
 				dbStateLabel.setTextFill(Color.GREEN);
@@ -272,7 +267,7 @@ public class ClientMainController {
 				dbStateLabel.setTextFill(Color.RED);
 				dbStateLabel.setText("未连接");
 			}
-		}else if(updatecode == Constant.UICODE_DATACREATOR){
+		}else if(updatecode == Constant.UICODE_DATACREATOR){	//模拟数据产生开关
 			
 			if((boolean)value){
 				creatorStateLabel.setTextFill(Color.GREEN);
@@ -282,7 +277,6 @@ public class ClientMainController {
 				creatorStateLabel.setText("关闭");
 			}
 		}
-		
 	}
 	
 }

@@ -10,12 +10,16 @@ import com.eqsys.msg.data.TrgData;
  */
 public class TriggerDetection {
 	
-	public static volatile boolean triggerSignal = false;
+	private static volatile boolean triggerSignal = false;	//触发信号
+	private static volatile boolean ctrlSignal = false;		//触发控制信号
+	
 
-	/** 模拟检测触发接口 */
+	/** 模拟检测触发接口 
+	 *  由触发信号和触发控制信号决定结果
+	 */
 	public static boolean detect(){
 		
-		return triggerSignal;
+		return triggerSignal || ctrlSignal;
 	}
 	
 	/** 获取触发模式下的状态数据接口 */
@@ -29,7 +33,16 @@ public class TriggerDetection {
 		
 		return DataBuilder.buildTrgData(id);
 	}
-	
-	
+	/** 切换触发信号 */
+	public static void toggleTriggerSignal(){
+		triggerSignal = !triggerSignal;
+	}
+	/** 设定控制信号 */
+	public static void setCtrlSignal(boolean value){
+		ctrlSignal = value;
+	}
+	public static void initTriggerDetect(){
+		triggerSignal = ctrlSignal = false;
+	}
 	
 }

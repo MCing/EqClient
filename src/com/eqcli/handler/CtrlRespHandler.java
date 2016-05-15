@@ -3,15 +3,19 @@ package com.eqcli.handler;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 import com.eqcli.application.EqClient;
 import com.eqcli.simulation.DataReport;
+import com.eqcli.simulation.TriggerDetection;
 import com.eqcli.task.ContinuousTask;
 import com.eqcli.task.DataReqTask;
+import com.eqcli.task.TriggerScheduleTask;
 import com.eqcli.task.TriggerTask;
 import com.eqcli.util.Constant;
 import com.eqcli.util.DataBuilder;
 import com.eqcli.util.ParseUtil;
+import com.eqcli.util.UTCTimeUtil;
 import com.eqsys.msg.CommandReq;
 import com.eqsys.msg.EqMessage;
 import com.eqsys.msg.MsgConstant;
@@ -19,11 +23,14 @@ import com.eqsys.msg.PeriodDataReq;
 import com.eqsys.msg.RegResp;
 import com.eqsys.msg.ThresholdReq;
 import com.eqsys.msg.TransModeReq;
+import com.eqsys.msg.TriggerReq;
 import com.mysql.jdbc.Constants;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
 import io.netty.util.concurrent.ScheduledFuture;
 
 public class CtrlRespHandler extends ChannelHandlerAdapter {
@@ -31,7 +38,7 @@ public class CtrlRespHandler extends ChannelHandlerAdapter {
 	private Logger log = Logger.getLogger(CtrlRespHandler.class);
 	private EqClient client;
 	private ScheduledFuture transTask;
-	private ScheduledFuture dataReqTask;
+//	private ScheduledFuture dataReqTask;
 
 	private int lastPacketId;
 	
@@ -69,20 +76,30 @@ public class CtrlRespHandler extends ChannelHandlerAdapter {
 			case MsgConstant.CMD_PERIODDATA:{
 				PeriodDataReq submsg = (PeriodDataReq) bodyMsg;
 				respMsg = "时间段数据申请响应";
-				System.out.println("时间段数据申请包");
+				System.err.println("时间段数据申请包");
 				long starttime = submsg.getTimeCode();
 				long endtime = starttime+submsg.getPeriod();
 				ctx.executor().schedule(new DataReqTask(ctx, starttime, endtime), 1000, TimeUnit.MILLISECONDS);
-//				dataReqTask = ctx.executor().scheduleAtFixedRate(new DataReqTask(ctx, starttime, endtime), 1000, 1000, TimeUnit.MILLISECONDS);
 			}
 				break;
 			case MsgConstant.CMD_TRGPRIOD:
-				ThresholdReq thrmsg = (ThresholdReq)bodyMsg;
-				System.out.println("触发阈值设定控制包");
-				client.updateUI(Constant.UICODE_THREHOLD, thrmsg.getTriggleThreshold());
+				System.err.println("时间段触发控制包");
+				TriggerReq req = (TriggerReq)bodyMsg;
+				respMsg = "触发控制设定成功";
+				long starttime = req.getStartTime();
+				long endtime = req.getEndTime();
+				if(starttime > System.currentTimeMillis()){
+					System.err.println("时间段触发 开始时间:"+UTCTimeUtil.timeFormat1(starttime) +"   delay:"+(starttime-System.currentTimeMillis()));
+					System.err.println("时间段触发 结束时间:"+UTCTimeUtil.timeFormat1(endtime) +"   delay:"+(endtime-System.currentTimeMillis()));
+					ctx.executor().schedule(new TriggerScheduleTask(true), starttime-System.currentTimeMillis(), TimeUnit.MILLISECONDS);
+					ctx.executor().schedule(new TriggerScheduleTask(false), endtime-System.currentTimeMillis(), TimeUnit.MILLISECONDS);
+				}
 				break;
 			case MsgConstant.CMD_TRGTHRESHOLD:
-				System.out.println("时间段触发控制包");
+				ThresholdReq thrmsg = (ThresholdReq)bodyMsg;
+				System.err.println("触发阈值设定控制包");
+				client.updateUI(Constant.UICODE_THREHOLD, thrmsg.getTriggleThreshold());
+				respMsg = "触发阈值设定成功";
 				break;
 			default:
 				break;
@@ -98,10 +115,7 @@ public class CtrlRespHandler extends ChannelHandlerAdapter {
 
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-//		if(dataReqTask != null){
-//			dataReqTask.cancel(true);
-//			dataReqTask = null;
-//		}
+		
 		switchTransMode(Constant.MODE_IDLE, ctx);
 	}
 

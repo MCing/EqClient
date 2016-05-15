@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import com.eqcli.application.EqClient;
 import com.eqcli.util.Constant;
 import com.eqcli.util.DataBuilder;
+import com.eqcli.util.LogUtil;
 import com.eqsys.msg.EqMessage;
 import com.eqsys.msg.MsgConstant;
 import com.eqsys.msg.RegResp;
@@ -62,11 +63,12 @@ public class RegReqHandler extends ChannelHandlerAdapter {
 			if (bodyMsg.getAuthenState() == MsgConstant.REG_SUCCESS) { // 注册成功
 
 				log.info("注册成功");
+				LogUtil.sysLog("连接台网成功");
 				client.updateUI(Constant.UICODE_STATE, true);
 				// 将注册应答包消息中的一些参数(上次包序列号)透传到CtrlRespHandler
 				ctx.fireChannelRead(msg);
 			} else {
-
+				LogUtil.sysLog("连接台网失败");
 				log.error("向服务器注册失败,认证失败");
 				// 注册失败之后....
 				// 参数错误,修改连接参数

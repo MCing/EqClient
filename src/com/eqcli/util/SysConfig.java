@@ -66,11 +66,11 @@ public class SysConfig {
 			jdbcUser = prop.getProperty("JDBC_USER");
 			jdbcPasswd = prop.getProperty("JDBC_PASSWORD");
 			jdbcDb = prop.getProperty("JDBC_DATABASE");
-			jdbcPort = Integer.valueOf(prop.getProperty("JDBC_PORT"));
+			jdbcPort = Integer.valueOf(prop.getProperty("JDBC_PORT", "3306"));
 			jdbcServerName = prop.getProperty("JDBC_SERVERNAME");
 			// 服务器配置
 			serverIp = prop.getProperty("SERVER_IP", "localhost");
-			serverPort = Integer.valueOf(prop.getProperty("SERVER_PORT", "3306"));
+			serverPort = Integer.valueOf(prop.getProperty("SERVER_PORT", "8080"));
 
 			// 网络参数配置
 			authenCode = prop.getProperty("AUTHEN_CODE", "");

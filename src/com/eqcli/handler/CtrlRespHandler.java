@@ -14,6 +14,7 @@ import com.eqcli.task.TriggerScheduleTask;
 import com.eqcli.task.TriggerTask;
 import com.eqcli.util.Constant;
 import com.eqcli.util.DataBuilder;
+import com.eqcli.util.LogUtil;
 import com.eqcli.util.ParseUtil;
 import com.eqcli.util.UTCTimeUtil;
 import com.eqsys.msg.CommandReq;
@@ -76,10 +77,10 @@ public class CtrlRespHandler extends ChannelHandlerAdapter {
 			case MsgConstant.CMD_PERIODDATA:{
 				PeriodDataReq submsg = (PeriodDataReq) bodyMsg;
 				respMsg = "时间段数据申请响应";
-				System.err.println("时间段数据申请包");
 				long starttime = submsg.getTimeCode();
 				long endtime = starttime+submsg.getPeriod();
 				ctx.executor().schedule(new DataReqTask(ctx, starttime, endtime), 1000, TimeUnit.MILLISECONDS);
+				LogUtil.sysLog("台网申请时间段数据:"+UTCTimeUtil.timeFormat1(starttime)+"---"+UTCTimeUtil.timeFormat1(endtime));
 			}
 				break;
 			case MsgConstant.CMD_TRGPRIOD:
@@ -89,17 +90,19 @@ public class CtrlRespHandler extends ChannelHandlerAdapter {
 				long starttime = req.getStartTime();
 				long endtime = req.getEndTime();
 				if(starttime > System.currentTimeMillis()){
-					System.err.println("时间段触发 开始时间:"+UTCTimeUtil.timeFormat1(starttime) +"   delay:"+(starttime-System.currentTimeMillis()));
-					System.err.println("时间段触发 结束时间:"+UTCTimeUtil.timeFormat1(endtime) +"   delay:"+(endtime-System.currentTimeMillis()));
+//					System.err.println("时间段触发 开始时间:"+UTCTimeUtil.timeFormat1(starttime) +"   delay:"+(starttime-System.currentTimeMillis()));
+//					System.err.println("时间段触发 结束时间:"+UTCTimeUtil.timeFormat1(endtime) +"   delay:"+(endtime-System.currentTimeMillis()));
 					ctx.executor().schedule(new TriggerScheduleTask(true), starttime-System.currentTimeMillis(), TimeUnit.MILLISECONDS);
 					ctx.executor().schedule(new TriggerScheduleTask(false), endtime-System.currentTimeMillis(), TimeUnit.MILLISECONDS);
 				}
+				LogUtil.sysLog("台网设定触发时间段:"+UTCTimeUtil.timeFormat1(starttime)+"---"+UTCTimeUtil.timeFormat1(endtime));
 				break;
 			case MsgConstant.CMD_TRGTHRESHOLD:
 				ThresholdReq thrmsg = (ThresholdReq)bodyMsg;
 				System.err.println("触发阈值设定控制包");
 				client.updateUI(Constant.UICODE_THREHOLD, thrmsg.getTriggleThreshold());
 				respMsg = "触发阈值设定成功";
+				LogUtil.sysLog("台网设置触发阈值");
 				break;
 			default:
 				break;
@@ -108,7 +111,6 @@ public class CtrlRespHandler extends ChannelHandlerAdapter {
 			// test  状态回应
 			EqMessage ccRMsg = DataBuilder.buildCtrlRspMsg(
 					eqMsg.getHeader().getPid(), state, respMsg, bodyMsg.getSubCommand());
-
 			send(ctx, ccRMsg);
 		}
 	}
@@ -191,6 +193,7 @@ public class CtrlRespHandler extends ChannelHandlerAdapter {
 			break;
 		}
 		EqClient.currTransMode = mode;
+		LogUtil.sysLog("切换到"+ParseUtil.parseTransMode(mode));
 	}
 	
 	/** 切换传输模式前的准备,关闭开启的任务 */

@@ -10,6 +10,7 @@ import com.eqcli.simulation.DataReport;
 import com.eqcli.util.Constant;
 import com.eqcli.util.EqConfig;
 import com.eqcli.util.JDBCHelper;
+import com.eqcli.util.LogUtil;
 import com.eqcli.util.ParseUtil;
 import com.eqcli.util.SysConfig;
 
@@ -125,7 +126,7 @@ public class ClientMainController {
 		.setCellValueFactory(new PropertyValueFactory<LogEvent, String>(
 				"event"));
 
-		logArea.setItems(EqClient.logList);
+		logArea.setItems(LogUtil.getSysLog());
 		//init data creator tableviews
 		dataTime
 		.setCellValueFactory(new PropertyValueFactory<DataReport, String>(

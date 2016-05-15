@@ -59,7 +59,7 @@ public class EqClient extends Application {
 
 	private Channel channel;
 	
-	public static ObservableList<LogEvent> logList = FXCollections.observableArrayList();
+	
 	public static ObservableList<DataReport> dataList = FXCollections.observableArrayList();
 
 	public static volatile short currTransMode = Constant.MODE_IDLE;  //当前传输模式

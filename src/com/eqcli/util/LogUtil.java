@@ -3,7 +3,12 @@ package com.eqcli.util;
 import java.net.URL;
 import java.util.Properties;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
 import org.apache.log4j.PropertyConfigurator;
+
+import com.eqcli.application.LogEvent;
 
 /** 
  * 日志工具类
@@ -13,6 +18,9 @@ import org.apache.log4j.PropertyConfigurator;
 public class LogUtil {
 
 	private final static String LOG_PROPERTY_FILE = "log4j.properties";
+	
+	//系统日志
+	private static ObservableList<LogEvent> logList = FXCollections.observableArrayList();
 	
 	public static void initLog(){
 		
@@ -62,6 +70,17 @@ public class LogUtil {
 		
 		//2. 通过classpath 获取配置文件,文件必须在classpath路径中(如bin目录下)
 		return ClassLoader.getSystemResource(LOG_PROPERTY_FILE);
+	}
+	
+	public static ObservableList<LogEvent> getSysLog(){
+		return logList;
+	}
+	/** 添加是系统事件  */
+	public static void sysLog(String msg){
+		LogEvent event = new LogEvent();
+		event.setTime(UTCTimeUtil.timeFormat1(System.currentTimeMillis()));
+		event.setEvent(msg);
+		logList.add(event);
 	}
 	
 }

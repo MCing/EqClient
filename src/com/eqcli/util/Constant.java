@@ -18,7 +18,7 @@ public class Constant {
 	public static final short MODE_DATAREQ = 4;
 	
 	/* 传输模式  */
-	public static final String TRANSMODE[] = {null, "连续波形传输", "触发传波形", "触发不传波形"};
+	public static final String TRANSMODE[] = {"空闲模式", "连续波形传输", "触发传波形", "触发不传波形"};
 	
 	
 	

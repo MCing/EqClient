@@ -126,7 +126,7 @@
             </Tab>
             <Tab text="数据模拟">
               <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                <AnchorPane id="edit_background" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
                         <TableView fx:id="dataTable" layoutX="293.0" prefHeight="360.0" prefWidth="407.0">
                           <columns>

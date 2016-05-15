@@ -39,9 +39,10 @@ public class JDBCHelper {
 //		poolMgr = new MiniConnectionPoolManager(ds, connectionPoolCapacity);
 
 		
-		if (testConnection()) {
-			log.error("数据库开启");
+		if (dbState = testConnection()) {
 			testPrepareDb();
+		}else{
+			LogUtil.sysLog("数据库异常,连接失败");
 		}
 		return dbState;
 	}
